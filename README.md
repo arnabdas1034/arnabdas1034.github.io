@@ -11,7 +11,7 @@ next, and where I want it to go. No framework, no build step, no dependencies.
 |---|---|
 | `index.html` | The whole site — markup, styles and script inline. |
 | `resume.pdf` | Résumé, linked from the header. |
-| `og-image.png` | 1200×630 link-preview card. |
+| `og-image-v2.png` | 1200×630 link-preview card. |
 
 ## Notes
 
