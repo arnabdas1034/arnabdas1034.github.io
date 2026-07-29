@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Arnab Das — Builder</title>
-<meta name="description" content="I build systems — a vector database in C++, retrieval pipelines, and automation that removes work nobody should be doing by hand. Materials Science &amp; Engineering at IIT Delhi.">
+<title>Arnab Das, Builder</title>
+<meta name="description" content="I build systems. A vector database in C++, retrieval pipelines, and automation that removes work nobody should be doing by hand. Materials Science &amp; Engineering at IIT Delhi.">
 <meta name="author" content="Arnab Das">
 <meta name="theme-color" content="#131519">
 
 <!-- link previews on LinkedIn, WhatsApp, X, Slack -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Arnab Das — Builder">
+<meta property="og:title" content="Arnab Das, Builder">
 <meta property="og:description" content="A vector database in C++, retrieval pipelines, automation. Currently building four things at once.">
 <meta property="og:url" content="https://arnabdas1034.github.io">
 <meta property="og:image" content="https://arnabdas1034.github.io/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Arnab Das — I build systems: C++, retrieval, automation.">
+<meta property="og:image:alt" content="Arnab Das. I build systems: C++, retrieval, automation.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://arnabdas1034.github.io/og-image.png">
 
@@ -50,7 +50,8 @@
   }
 
   html { scroll-behavior: smooth; }
-  section, header.hero { scroll-margin-top: 78px; }
+  /* clears the 79px fixed nav (taller since the toggle grew to a 44px tap target) */
+  section, header.hero { scroll-margin-top: 92px; }
 
   body {
     background: var(--bg);
@@ -68,7 +69,11 @@
     position: fixed; top: 0; left: 0; right: 0; z-index: 60;
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 30px;
+    /* Solid fallback first: browsers without color-mix() drop the line below and
+       keep an opaque nav, so nav text never collides with content scrolling under it. */
+    background: var(--bg);
     background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--rule);
     transition: background .35s ease, border-color .35s ease;
@@ -98,7 +103,11 @@
     font-family: ui-monospace, Menlo, monospace;
     font-size: 9.5px; letter-spacing: .13em; text-transform: uppercase;
     cursor: pointer; border: 0; border-radius: 999px;
-    padding: 5px 12px; background: transparent; color: var(--ink-faint);
+    /* 44px minimum tap target. Flex centring keeps the 9.5px type and the pill
+       radius exactly as they were; only the touchable area grows. */
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 0 14px;
+    background: transparent; color: var(--ink-faint);
     transition: background .22s ease, color .22s ease;
   }
   .seg button:hover { color: var(--ink-soft); }
@@ -107,7 +116,7 @@
   /* ================= LAYOUT ================= */
   .wrap { max-width: 800px; margin: 0 auto; padding: 0 30px; }
 
-  section { padding: 66px 0; border-bottom: 1px solid var(--rule); scroll-margin-top: 76px; }
+  section { padding: 66px 0; border-bottom: 1px solid var(--rule); scroll-margin-top: 92px; }
   section:last-of-type { border-bottom: none; }
 
   .sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 34px; flex-wrap: wrap; }
@@ -187,6 +196,25 @@
     padding: 3px 8px; border-radius: 2px;
   }
 
+  /* ---- action row: Built cards only ---- */
+  .row {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-top: 15px; padding-top: 14px;
+    border-top: 1px solid var(--rule);
+  }
+  .btn {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+    text-decoration: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 7px;
+    min-height: 36px; padding: 0 15px;
+    border: 1px solid var(--rule-strong); border-radius: 999px;
+    color: var(--accent); background: transparent;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .btn .arw { font-size: 11px; line-height: 1; }
+
   /* ================= PROSE ================= */
   .prose p {
     font-size: 17px; color: var(--ink-soft);
@@ -211,13 +239,24 @@
   footer .fine { font-family: ui-monospace, Menlo, monospace; font-size: 10.5px; color: var(--ink-faint); letter-spacing: .05em; }
 
   /* ================= MOTION ================= */
-  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
-  .reveal.in { opacity: 1; transform: none; }
+  /* The reveal animation is progressive enhancement. Nothing is hidden unless
+     <html> carries .js-reveal, which the script only sets once it has confirmed
+     JS is running and IntersectionObserver exists. JS blocked, unsupported or
+     throwing therefore leaves the page fully readable rather than blank. */
+  .js-reveal .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .js-reveal .reveal.in { opacity: 1; transform: none; }
   @media (prefers-reduced-motion: reduce) {
-    .reveal { opacity: 1; transform: none; transition: none; }
+    /* matches .js-reveal .reveal specificity so it still wins here */
+    .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
     html { scroll-behavior: auto; }
   }
 </style>
+<script>
+  // Opt in to the reveal animation before first paint, so enhanced content never
+  // flashes visible and then hides. Gated on IntersectionObserver: a browser
+  // without it never sets the class and simply shows everything.
+  if ('IntersectionObserver' in window) document.documentElement.classList.add('js-reveal');
+</script>
 </head>
 <body data-theme="dark">
 
@@ -241,13 +280,13 @@
 
   <header class="hero">
     <h1>Arnab Das</h1>
-    <p class="lede">I build systems — a vector database in C++, retrieval pipelines, automation that removes work nobody should be doing by hand. <em>Most of what I know about software, I learned by shipping it.</em></p>
+    <p class="lede">I build systems. A vector database in C++, retrieval pipelines, automation that removes work nobody should be doing by hand. <em>Most of what I know about software, I learned by shipping it.</em></p>
     <p class="where mono">Materials Science &amp; Engineering · IIT Delhi · Class of 2028</p>
     <div class="hero-links">
       <a href="https://github.com/arnabdas1034">GitHub</a>
       <a href="mailto:arnabdas10b@gmail.com">Email</a>
       <a href="https://linkedin.com/in/arnabdas1034">LinkedIn</a>
-      <a href="/resume.pdf">Résumé (PDF)</a>
+      <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Résumé (PDF)</a>
     </div>
   </header>
 
@@ -263,7 +302,7 @@
         <h3>AI Code Review Assistant</h3>
         <span class="chip">Building</span>
       </div>
-      <p>An autonomous review agent that reads a pull request, reasons through it with tool calls, and leaves structured comments. <span class="hi">The hard part isn't the review — it's the guardrails</span>, so the agent stops recursing instead of burning tokens forever.</p>
+      <p>An autonomous review agent that reads a pull request, reasons through it with tool calls, and leaves structured comments. <span class="hi">The hard part isn't the review, it's the guardrails</span>, so the agent stops recursing instead of burning tokens forever.</p>
       <div class="stack"><span>Python</span><span>LLM tool calling</span><span>AWS Lambda</span><span>GitHub API</span></div>
     </div>
 
@@ -272,7 +311,7 @@
         <h3>Ember</h3>
         <span class="chip">Building</span>
       </div>
-      <p>Students on YC and startup programmes get large model-API credit grants, then discover the only way to spend them is writing code against an API — there's no consumer chat product that runs on your own key. I had the problem myself, asked around, and <span class="hi">found everyone assumed such a thing already existed.</span> Ember is that product: an API key turned into something that behaves like a paid subscription.</p>
+      <p>Students on YC and startup programmes get large model-API credit grants, then discover the only way to spend them is writing code against an API. There's no consumer chat product that runs on your own key. I had the problem myself, asked around, and <span class="hi">found everyone assumed such a thing already existed.</span> Ember is that product: an API key turned into something that behaves like a paid subscription.</p>
       <div class="stack"><span>TypeScript</span><span>Anthropic API</span><span>Desktop</span></div>
     </div>
 
@@ -281,7 +320,7 @@
         <h3>URL Shortener &amp; Analytics</h3>
         <span class="chip">Building</span>
       </div>
-      <p>Short links with auth, custom aliases and expiry, plus a click-analytics layer behind them. An exercise in the unglamorous half of backend work — cache invalidation, rate limiting, and indexes that hold up when the analytics table gets big.</p>
+      <p>Short links with auth, custom aliases and expiry, plus a click-analytics layer behind them. An exercise in the unglamorous half of backend work: cache invalidation, rate limiting, and indexes that hold up when the analytics table gets big.</p>
       <div class="stack"><span>FastAPI</span><span>PostgreSQL</span><span>Redis</span><span>Docker</span></div>
     </div>
 
@@ -290,7 +329,7 @@
         <h3>Concurrent Job Scheduler</h3>
         <span class="chip">Building</span>
       </div>
-      <p>A thread pool in modern C++ with dynamic dispatch across workers and a thread-safe queue built on mutexes and condition variables — <span class="hi">no busy-waiting</span>, RAII throughout, and a shutdown path that actually drains cleanly.</p>
+      <p>A thread pool in modern C++ with dynamic dispatch across workers and a thread-safe queue built on mutexes and condition variables. <span class="hi">No busy-waiting</span>, RAII throughout, and a shutdown path that actually drains cleanly.</p>
       <div class="stack"><span>C++17</span><span>Concurrency</span><span>RAII</span></div>
     </div>
   </section>
@@ -307,17 +346,23 @@
         <h3><a href="https://github.com/arnabdas1034/NanoVector">NanoVector</a></h3>
         <span class="chip quiet">Deployed &middot; EC2</span>
       </div>
-      <p>A vector database written in C++ from first principles — flat, KD-tree and HNSW backends, exposed to Python through pybind11 instead of leaning on a managed store. I built <span class="hi">an evaluation harness alongside it</span>, so index and ranking decisions came from Recall@k and latency numbers rather than from guesswork. Served through FastAPI, running on an EC2 instance.</p>
+      <p>A vector database written in C++ from first principles. Flat, KD-tree and HNSW backends, exposed to Python through pybind11 instead of leaning on a managed store. I built <span class="hi">an evaluation harness alongside it</span>, so index and ranking decisions came from Recall@k and latency numbers rather than from guesswork. Served through FastAPI, running on an EC2 instance.</p>
       <div class="stack"><span>C++17</span><span>pybind11</span><span>HNSW</span><span>FastAPI</span><span>AWS</span></div>
+      <div class="row">
+        <a class="btn" href="https://github.com/arnabdas1034/NanoVector" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
+      </div>
     </div>
 
     <div class="card reveal">
       <div class="card-top">
-        <h3><a href="https://github.com/valhalla/valhalla/pull/6159">Valhalla — merged PR #6159</a></h3>
+        <h3><a href="https://github.com/valhalla/valhalla/pull/6159">Valhalla, merged PR #6159</a></h3>
         <span class="chip quiet">Merged upstream</span>
       </div>
       <p>A maintainer-reviewed contribution to an open-source routing engine with 6,000+ stars. A missing dependency used to fail opaquely halfway through the build; now CMake catches it at configure time and says so plainly. <span class="hi">It closed an issue that had been open for four years.</span></p>
       <div class="stack"><span>C++</span><span>CMake</span><span>Cross-platform CI</span></div>
+      <div class="row">
+        <a class="btn" href="https://github.com/valhalla/valhalla/pull/6159" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
+      </div>
     </div>
 
     <div class="card reveal">
@@ -325,8 +370,12 @@
         <h3><a href="https://github.com/arnabdas1034/ColdEmail">ColdEmail</a></h3>
         <span class="chip quiet">Deployed</span>
       </div>
-      <p>End-to-end outreach: sources contacts, verifies deliverability before anything sends, and generates a personalised opener per lead through an LLM. Five thousand lines across forty-four commits, with CI wired in from the first week &mdash; <span class="hi">deployed and running</span>.</p>
+      <p>End-to-end outreach: sources contacts, verifies deliverability before anything sends, and generates a personalised opener per lead through an LLM. Five thousand lines across forty-four commits, with CI wired in from the first week. <span class="hi">Deployed and running</span>.</p>
       <div class="stack"><span>TypeScript</span><span>LLM APIs</span><span>GitHub Actions</span></div>
+      <div class="row">
+        <a class="btn" href="https://cold-email-rho.vercel.app/" target="_blank" rel="noopener noreferrer">Live demo <span class="arw">&#8599;</span></a>
+        <a class="btn" href="https://github.com/arnabdas1034/ColdEmail" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
+      </div>
     </div>
 
     <div class="card reveal">
@@ -334,8 +383,11 @@
         <h3><a href="https://github.com/arnabdas1034/GrainSim">GrainSim</a></h3>
         <span class="chip quiet">Shipped</span>
       </div>
-      <p>A materials physics simulation spanning sixteen material systems — <span class="hi">my degree subject written as code I could actually run</span>. Real pytest suite throughout, packaged with Docker and ready to deploy.</p>
+      <p>A materials physics simulation spanning sixteen material systems. <span class="hi">My degree subject written as code I could actually run</span>. Real pytest suite throughout, packaged with Docker and ready to deploy.</p>
       <div class="stack"><span>Python</span><span>pytest</span><span>Docker</span><span>Simulation</span></div>
+      <div class="row">
+        <a class="btn" href="https://github.com/arnabdas1034/GrainSim" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
+      </div>
     </div>
 
     <div class="card reveal">
@@ -345,6 +397,9 @@
       </div>
       <p>Builds verified contact lists for local businesses from map listings. The interesting decision was deduplication: <span class="hi">keying on place ID rather than name or phone</span>, which is the only way chains and renamed listings collapse correctly.</p>
       <div class="stack"><span>Python</span><span>Scraping</span><span>Data pipelines</span></div>
+      <div class="row">
+        <a class="btn" href="https://github.com/arnabdas1034/LocalBusinessScraper" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
+      </div>
     </div>
   </section>
 
@@ -360,7 +415,7 @@
         <h3>IIT Delhi Visitor Entry System</h3>
         <span class="chip">Prototype due 20 Aug</span>
       </div>
-      <p>Commissioned through the institute's Security Head. A visitor registers online with their ID and who they're seeing, the host approves by email, a QR ticket is issued, and the guard scans it at the gate. <span class="hi">The guard stays in the loop by design</span> — the goal is to remove the paper register, not the human check.</p>
+      <p>Commissioned through the institute's Security Head. A visitor registers online with their ID and who they're seeing, the host approves by email, a QR ticket is issued, and the guard scans it at the gate. <span class="hi">The guard stays in the loop by design</span>. The goal is to remove the paper register, not the human check.</p>
       <div class="stack"><span>Real stakeholders</span><span>QR ticketing</span><span>Access control</span></div>
     </div>
 
@@ -412,50 +467,59 @@
 </div>
 
 <script>
-  // ---- theme (default: dark) ----
-  const body = document.body;
-  const segBtns = document.querySelectorAll('.seg button');
-  segBtns.forEach(b => b.addEventListener('click', () => {
-    body.dataset.theme = b.dataset.set;
-    segBtns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-  }));
+(function () {
+  const root = document.documentElement;
+  try {
+    // ---- theme (default: dark) ----
+    const body = document.body;
+    const segBtns = document.querySelectorAll('.seg button');
+    segBtns.forEach(b => b.addEventListener('click', () => {
+      body.dataset.theme = b.dataset.set;
+      segBtns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    }));
 
-  // ---- in-page navigation ----
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      const id = a.getAttribute('href').slice(1);
-      if (!id) return;                        // placeholder links stay inert
-      const target = document.getElementById(id);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // ---- in-page navigation ----
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = a.getAttribute('href').slice(1);
+        if (!id) return;                        // placeholder links stay inert
+        const target = document.getElementById(id);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
-  });
 
-  // ---- in-page navigation ----
-  // Bare "#id" hrefs get hijacked when this page is previewed inside a sandboxed
-  // iframe, so scrolling is handled explicitly rather than left to the browser.
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (a.dataset.pending) return;
-      const id = a.getAttribute('href').slice(1);
-      const target = id ? document.getElementById(id) : null;
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
+    // ---- in-page navigation ----
+    // Bare "#id" hrefs get hijacked when this page is previewed inside a sandboxed
+    // iframe, so scrolling is handled explicitly rather than left to the browser.
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (a.dataset.pending) return;
+        const id = a.getAttribute('href').slice(1);
+        const target = id ? document.getElementById(id) : null;
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        else window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     });
-  });
 
-  // ---- reveal on scroll ----
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add('in'), i * 55);
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    // ---- reveal on scroll ----
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('in'), i * 55);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  } catch (err) {
+    // Fail open. If anything above threw, drop the class so every .reveal
+    // element becomes visible rather than being stranded at opacity 0.
+    root.classList.remove('js-reveal');
+  }
+})();
 </script>
 
 </body>
