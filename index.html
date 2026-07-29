@@ -479,17 +479,6 @@
     }));
 
     // ---- in-page navigation ----
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        const id = a.getAttribute('href').slice(1);
-        if (!id) return;                        // placeholder links stay inert
-        const target = document.getElementById(id);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
-
-    // ---- in-page navigation ----
     // Bare "#id" hrefs get hijacked when this page is previewed inside a sandboxed
     // iframe, so scrolling is handled explicitly rather than left to the browser.
     document.querySelectorAll('a[href^="#"]').forEach(a => {
