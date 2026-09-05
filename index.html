@@ -244,9 +244,67 @@
     color: var(--accent); margin-bottom: 14px;
   }
 
-  /* The NexBuilt intro is prose followed by cards, so it needs the breathing
-     room a card's own margin would otherwise provide. */
-  #nexbuilt .prose { margin-bottom: 26px; }
+  /* ================= NEXBUILT BAND =================
+     The first content section is treated as a slab rather than a section, so it
+     anchors the page instead of queueing up behind it. It bleeds out to the
+     edges of .wrap with a negative margin, then pays the same 30px back as
+     padding, so the rail sits outside the text column and the copy still lines
+     up with every other section. Surface, rail and type are all existing
+     tokens, so both themes follow automatically. */
+  #nexbuilt {
+    background: var(--bg-elev);
+    border-left: 3px solid var(--accent);
+    border-bottom: none;
+    margin: 0 -30px;
+    /* 3px rail + 27px = the 30px gutter every other section aligns to */
+    padding: 46px 30px 50px 27px;
+    transition: background .35s ease, border-color .35s ease;
+  }
+
+  /* Same values as .prose .kicker, which is scoped to .prose and so cannot be
+     reused directly out here. */
+  #nexbuilt .eyebrow {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 14px;
+  }
+  #nexbuilt h2 {
+    font-size: clamp(46px, 9vw, 76px);
+    font-weight: 400; line-height: 1.02; letter-spacing: -.025em;
+    color: var(--ink); margin-bottom: 18px;
+  }
+  #nexbuilt .positioning {
+    font-size: 17px; color: var(--ink-soft);
+    max-width: 52ch; margin-bottom: 26px;
+  }
+
+  /* ---- stat strip ---- */
+  .nb-stats {
+    display: grid; gap: 13px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    margin-bottom: 30px;
+  }
+  .nb-stat { border: 1px solid var(--rule); border-radius: 4px; padding: 14px 16px; }
+  .nb-stat .label {
+    display: block;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 6px;
+  }
+  .nb-stat .value { font-size: 30px; line-height: 1.1; letter-spacing: -.02em; color: var(--ink); }
+
+  #nexbuilt .prose p { max-width: 58ch; }
+  #nexbuilt .prose p:last-of-type { margin-bottom: 0; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .btn.primary:hover { background: var(--accent); border-color: var(--accent); opacity: .88; }
+
+  /* ---- sub-cards, deliberately lighter than the band heading ---- */
+  #nexbuilt .card { padding: 18px 20px; }
+  #nexbuilt .card h3 { font-size: 17px; }
+  #nexbuilt .card p { font-size: 15px; margin-bottom: 12px; }
+  @media (max-width: 680px) {
+    #nexbuilt { padding: 38px 22px 42px 19px; margin: 0 -22px; }
+  }
 
   /* ================= FOOTER ================= */
   footer { padding: 60px 0 90px; }
@@ -315,35 +373,52 @@
 
   <!-- ============ NEXBUILT ============ -->
   <section id="nexbuilt">
-    <div class="sec-head reveal">
-      <h2>NexBuilt</h2>
-      <span class="note">nexbuilt.in · live</span>
+    <p class="eyebrow reveal">Agency &middot; nexbuilt.in &middot; live</p>
+    <h2 class="reveal">NexBuilt</h2>
+    <p class="positioning reveal">Websites and automation for small businesses, on its own domain, with its own email and thirteen pages live.</p>
+
+    <div class="nb-stats reveal">
+      <div class="nb-stat">
+        <span class="label">Pages live</span>
+        <span class="value">13</span>
+      </div>
+      <div class="nb-stat">
+        <span class="label">Service pages</span>
+        <span class="value">5</span>
+      </div>
+      <div class="nb-stat">
+        <span class="label">Industry pages</span>
+        <span class="value">5</span>
+      </div>
+      <div class="nb-stat">
+        <span class="label">Structured data</span>
+        <span class="value">Every page</span>
+      </div>
     </div>
 
     <div class="prose reveal">
-      <p class="kicker mono">Websites and automation for small businesses</p>
-      <p>NexBuilt is the practice the rest of this page now feeds into. The offer is a site for a local business, then the automation behind the site. <strong>The machine is built and outbound is running.</strong> Two pieces do the work: a static site engine that makes standing up a business a data change rather than a rebuild, and an audit tool that decides which businesses are worth contacting first.</p>
-      <p>The design constraint on both is the same one I would want as the buyer. A shop owner should get a site that loads instantly on a mid-range phone over patchy mobile data, and I should be able to stand one up without touching the template.</p>
+      <p>The offer is scoped rather than open ended. Five service pages state what NexBuilt sells, five industry pages state who it sells to, and every page carries structured data, so search engines and assistants read the business the way a customer would.</p>
+      <p>Two tools sit behind the marketing site and do the actual work. A static site engine handles delivery, so a signed client becomes a data change rather than a build from scratch. An audit tool handles acquisition, scoring prospects on the state of the site they already run.</p>
       <div class="row">
-        <a class="btn" href="https://nexbuilt.in" target="_blank" rel="noopener noreferrer">Visit nexbuilt.in <span class="arw">&#8599;</span></a>
+        <a class="btn primary" href="https://nexbuilt.in" target="_blank" rel="noopener noreferrer">Visit nexbuilt.in <span class="arw">&#8599;</span></a>
       </div>
     </div>
 
     <div class="card reveal">
       <div class="card-top">
         <h3>Site Engine</h3>
-        <span class="chip quiet">Shipped</span>
+        <span class="chip quiet">Private repo</span>
       </div>
-      <p>The static engine NexBuilt sites are built on, written first against the shape of a dental practice. Astro, no client-side JavaScript at all, under 60 KB on the wire, 100 on Lighthouse mobile. <span class="hi">Everything that varies between businesses lives in one JSON file</span>, so producing a site is a data change rather than a rebuild.</p>
+      <p>The engine every NexBuilt site is built on, written first against the shape of a dental practice. Astro, no client-side JavaScript at all, under 60 KB on the wire, 100 on Lighthouse mobile. <span class="hi">Everything that varies between businesses lives in one JSON file</span>, so producing a client site is a data change rather than a rebuild.</p>
       <div class="stack"><span>Astro</span><span>Static</span><span>Zero client JS</span><span>Lighthouse 100</span></div>
     </div>
 
     <div class="card reveal">
       <div class="card-top">
         <h3>Lead Audit CLI</h3>
-        <span class="chip quiet">Shipped</span>
+        <span class="chip quiet">Private repo</span>
       </div>
-      <p>Ranks prospects instead of guessing at them. It takes a business, resolves the site that business actually runs, scores that site's mobile performance through the PageSpeed Insights API, and sorts the list so <span class="hi">the worst-performing sites surface first</span>. It reads the contact lists that Local Business Scraper produces.</p>
+      <p>Ranks prospects instead of guessing at them. It takes a business, resolves the site that business actually runs, scores that site on mobile through the PageSpeed Insights API, and sorts the list so <span class="hi">the worst-performing sites surface first</span>. It reads the contact lists that Local Business Scraper produces.</p>
       <div class="stack"><span>PageSpeed Insights API</span><span>CLI</span><span>Data pipelines</span></div>
     </div>
   </section>
@@ -398,7 +473,7 @@
         <h3><a href="https://github.com/valhalla/valhalla/pull/6159">Valhalla, merged PR #6159</a></h3>
         <span class="chip quiet">Merged upstream</span>
       </div>
-      <p>A maintainer-reviewed contribution to an open-source routing engine with 6,000+ stars. A missing dependency used to fail opaquely halfway through the build; now CMake catches it at configure time and says so plainly. <span class="hi">It closed an issue that had been open for four years.</span></p>
+      <p>A maintainer-reviewed contribution to an open-source routing engine with 6,000+ stars. A missing dependency used to fail opaquely halfway through the build; now CMake catches it at configure time and says so plainly. <span class="hi">It closed an issue that had been open for six years.</span></p>
       <div class="stack"><span>C++</span><span>CMake</span><span>Cross-platform CI</span></div>
       <div class="row">
         <a class="btn" href="https://github.com/valhalla/valhalla/pull/6159" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
@@ -408,12 +483,12 @@
     <div class="card reveal">
       <div class="card-top">
         <h3><a href="https://github.com/arnabdas1034/ColdEmail">ColdEmail</a></h3>
-        <span class="chip quiet">Deployed</span>
+        <span class="chip quiet">In development</span>
       </div>
-      <p>End-to-end outreach: sources contacts, verifies deliverability before anything sends, and generates a personalised opener per lead through an LLM. Five thousand lines across forty-four commits, with CI wired in from the first week. <span class="hi">Deployed and running</span>.</p>
-      <div class="stack"><span>TypeScript</span><span>LLM APIs</span><span>GitHub Actions</span></div>
+      <p>A campaign manager for cold outreach: it imports leads, generates a personalised opener per lead through an LLM, drip-sends from a Postgres queue, and stops a sequence once someone replies. Forty-four commits of TypeScript on Next.js and Supabase. <span class="hi">Still in active development</span>, at the phase the repository README states.</p>
+      <div class="stack"><span>TypeScript</span><span>Next.js</span><span>Supabase</span><span>LLM APIs</span></div>
       <div class="row">
-        <a class="btn" href="https://cold-email-rho.vercel.app/" target="_blank" rel="noopener noreferrer">Live demo <span class="arw">&#8599;</span></a>
+        <a class="btn" href="https://cold-email-rho.vercel.app/" target="_blank" rel="noopener noreferrer">Live app, sign-in required <span class="arw">&#8599;</span></a>
         <a class="btn" href="https://github.com/arnabdas1034/ColdEmail" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
       </div>
     </div>
@@ -423,7 +498,7 @@
         <h3><a href="https://github.com/arnabdas1034/GrainSim">GrainSim</a></h3>
         <span class="chip quiet">Shipped</span>
       </div>
-      <p>A materials physics simulation spanning sixteen material systems. <span class="hi">My degree subject written as code I could actually run</span>. Real pytest suite throughout, packaged with Docker and ready to deploy.</p>
+      <p>A materials physics simulation spanning sixteen material systems. <span class="hi">My degree subject written as code I could actually run</span>. Ten pytest tests cover the backend, and it is packaged with Docker.</p>
       <div class="stack"><span>Python</span><span>pytest</span><span>Docker</span><span>Simulation</span></div>
       <div class="row">
         <a class="btn" href="https://github.com/arnabdas1034/GrainSim" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
@@ -435,8 +510,8 @@
         <h3><a href="https://github.com/arnabdas1034/LocalBusinessScraper">Local Business Scraper</a></h3>
         <span class="chip quiet">Shipped</span>
       </div>
-      <p>Builds verified contact lists for local businesses from map listings. The interesting decision was deduplication: <span class="hi">keying on place ID rather than name or phone</span>, which is the only way chains and renamed listings collapse correctly.</p>
-      <div class="stack"><span>Python</span><span>Scraping</span><span>Data pipelines</span></div>
+      <p>Builds contact lists for local businesses out of web search results and the sites those businesses run, rather than a places API. Duplicate listings are merged by fuzzy name match through rapidfuzz, <span class="hi">keeping whichever row carries more contact fields</span>. The README sets out what that choice costs: one site per chain, and no way to tell that a business has closed.</p>
+      <div class="stack"><span>Python</span><span>rapidfuzz</span><span>Scraping</span><span>Data pipelines</span></div>
       <div class="row">
         <a class="btn" href="https://github.com/arnabdas1034/LocalBusinessScraper" target="_blank" rel="noopener noreferrer">Source <span class="arw">&#8599;</span></a>
       </div>
@@ -501,7 +576,7 @@
       <a href="https://github.com/arnabdas1034">github.com/arnabdas1034</a>
       <a href="https://linkedin.com/in/arnabdas1034">linkedin.com/in/arnabdas1034</a>
     </div>
-    <p class="fine mono">New Delhi, India · Last updated August 2026</p>
+    <p class="fine mono">New Delhi, India · Last updated September 2026</p>
   </footer>
 
 </div>
