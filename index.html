@@ -16,18 +16,40 @@
 <meta name="description" content="Founder, NexBuilt. Websites and automation for small businesses. Also a vector database in C++, retrieval pipelines, and automation that removes work nobody should be doing by hand.">
 <meta name="author" content="Arnab Das">
 <meta name="theme-color" content="#131519">
+<link rel="canonical" href="https://arnabdas1034.github.io/">
 
 <!-- link previews on LinkedIn, WhatsApp, X, Slack -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Arnab Das, Founder at NexBuilt">
 <meta property="og:description" content="Websites and automation for small businesses. A static site engine, a lead-audit CLI, and a vector database written in C++.">
-<meta property="og:url" content="https://arnabdas1034.github.io">
+<meta property="og:url" content="https://arnabdas1034.github.io/">
 <meta property="og:image" content="https://arnabdas1034.github.io/og-image-v3.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Arnab Das. Founder, NexBuilt. Websites and automation for small businesses.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://arnabdas1034.github.io/og-image-v3.png">
+
+<!-- Person data for search engines. Every field here is also stated in the
+     visible page: the role in the hero, the institution in the line under it,
+     and both profile links in the header and footer. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Arnab Das",
+  "jobTitle": "Founder",
+  "url": "https://arnabdas1034.github.io/",
+  "alumniOf": {
+    "@type": "EducationalOrganization",
+    "name": "IIT Delhi"
+  },
+  "sameAs": [
+    "https://github.com/arnabdas1034",
+    "https://linkedin.com/in/arnabdas1034"
+  ]
+}
+</script>
 
 <!-- inline favicon, no extra file needed -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23131519'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' fill='%23d9a066' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
@@ -40,7 +62,7 @@
     --bg-elev: #1a1d22;
     --ink: #eae5db;
     --ink-soft: #a29d92;
-    --ink-faint: #6b675f;
+    --ink-faint: #8b867c;
     --rule: #292d34;
     --rule-strong: #363b43;
     --accent: #d9a066;
@@ -51,7 +73,7 @@
     --bg-elev: #fffdf9;
     --ink: #1c1a16;
     --ink-soft: #5b564e;
-    --ink-faint: #948d81;
+    --ink-faint: #736c61;
     --rule: #e0dad0;
     --rule-strong: #cdc5b8;
     --accent: #9a3f2b;
@@ -459,7 +481,7 @@
     <div class="card reveal">
       <div class="card-top">
         <h3><a href="https://github.com/arnabdas1034/NanoVector">NanoVector</a></h3>
-        <span class="chip quiet">Deployed &middot; EC2</span>
+        <span class="chip quiet">EC2, no public endpoint</span>
       </div>
       <p>A vector database written in C++ from first principles. Flat, KD-tree and HNSW backends, exposed to Python through pybind11 instead of leaning on a managed store. I built <span class="hi">an evaluation harness alongside it</span>, so index and ranking decisions came from Recall@k and latency numbers rather than from guesswork. Served through FastAPI, running on an EC2 instance.</p>
       <div class="stack"><span>C++17</span><span>pybind11</span><span>HNSW</span><span>FastAPI</span><span>AWS</span></div>
