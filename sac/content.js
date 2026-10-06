@@ -13,9 +13,9 @@ window.KK = {
       kicker: "Before we begin", title: "Be honest",
       rule: "Three quick questions. No points, no wrong answers.",
       qs: [
-        { id: "p1", q: "Do you have medical insurance through IIT Delhi right now?", o: ["Yes", "No", "No idea"] },
-        { id: "p2", q: "Is housekeeping supposed to clean inside your room?", o: ["Yes", "No", "No idea"] },
-        { id: "p3", q: "Can you check online which counsellor is free this very minute?", o: ["Yes", "No", "No idea"] },
+        { id: "p1", q: "Did you know you already have medical insurance through IIT Delhi?", o: ["Yes, I knew", "No, first time hearing it"] },
+        { id: "p2", q: "Did you know housekeeping is supposed to clean inside your room?", o: ["Yes, I knew", "No, first time hearing it"] },
+        { id: "p3", q: "Did you know a website shows which counsellor is free this very minute?", o: ["Yes, I knew", "No, first time hearing it"] },
       ],
     },
     {
