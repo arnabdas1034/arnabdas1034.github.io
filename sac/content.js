@@ -4,12 +4,14 @@ window.KK = {
   sub: "Karakoram Freshers Orientation",
   joinUrl: "arnabdas1034.github.io/sac",
   host: "Arnab",
+  // JEE style: a wrong answer costs this many points. "No idea" and no answer cost nothing.
+  penalty: 5,
   // Peaks of the Karakoram range
   teams: ["K2", "Gasherbrum", "Broad Peak", "Masherbrum", "Rakaposhi", "Saltoro", "Batura", "Saser"],
 
   acts: [
     {
-      id: "poll", type: "q", scored: false, dur: 15,
+      id: "poll", type: "q", scored: false, dur: 8,
       kicker: "Before we begin", title: "What do you think?",
       rule: "Three quick questions. No points, no wrong answers.",
       qs: [
@@ -19,9 +21,9 @@ window.KK = {
       ],
     },
     {
-      id: "match", type: "match", scored: true, dur: 90, pts: 10,
+      id: "match", type: "match", scored: true, dur: 40, pts: 10, chain: true,
       kicker: "Game one", title: "Match each problem to its door",
-      rule: "Six problems, six doors. 10 points for every correct match.",
+      rule: "Six problems, six doors. +10 for a correct match, −5 for a wrong one, 0 for No idea.",
       probs: [
         "Mess food was cold. Again.",
         "A friend has high fever at 1 AM",
@@ -41,12 +43,12 @@ window.KK = {
       key: [4, 3, 1, 5, 0, 2],
     },
     {
-      id: "ins", type: "q", scored: true, dur: 15,
-      kicker: "A question first", title: "Guess the number",
-      rule: "One question. 20 points.",
+      id: "ins", type: "q", scored: true, dur: 8,
+      kicker: "Bonus question", title: "Guess the number",
+      rule: "One question. +20 if right, −5 if wrong, 0 for No idea.",
       qs: [
         { id: "i1", q: "How much medical insurance do you have right now?",
-          o: ["₹0", "₹50,000", "₹2,00,000", "Wait, I have insurance?"], a: 2, pts: 20,
+          o: ["₹1 lakh", "₹1.5 lakh", "₹2 lakh", "₹6 lakh"], a: 2, pts: 20,
           why: "₹2 lakh per student, every year." },
       ],
     },
@@ -61,14 +63,12 @@ window.KK = {
           notes: "Talk to them. Help a Friend. A counsellor. Warden or SAC Secretary." },
         { t: "Your bathroom tap has leaked for five days. Everyone says, 'kal ho jayega'.",
           notes: "Complaint on the BHM portal. Then the House Secretary." },
-        { t: "A senior asks you to come to their room at 2 AM, 'for an intro'.",
-          notes: "Refuse. Helpline 1800-180-5522. Tell the warden." },
       ],
     },
     {
-      id: "mf", type: "q", scored: true, dur: 12, pts: 10,
+      id: "mf", type: "q", scored: true, dur: 8, pts: 10,
       kicker: "Game three", title: "Myth, or fact?",
-      rule: "One statement at a time. 10 points each.",
+      rule: "One statement at a time. +10 if right, −5 if wrong, 0 for No idea.",
       qs: [
         { id: "m1", q: "Insurance pays for an ordinary OPD visit.", o: ["Fact", "Myth"], a: 1, why: "Only for admissions of 24 hours or more, or day care." },
         { id: "m2", q: "Housekeeping is meant to clean your room.", o: ["Fact", "Myth"], a: 0, why: "It is in their contract." },
@@ -82,12 +82,12 @@ window.KK = {
     {
       id: "voice", type: "wall", scored: false,
       kicker: "Chapter VI", title: "Your Voice",
-      rule: "One problem or one idea. Your name is not shown on the screen.",
+      rule: "One problem, or one idea. One message each.",
     },
     {
-      id: "kbc", type: "q", scored: true, dur: 20,
+      id: "kbc", type: "q", scored: true, dur: 8,
       kicker: "The final round", title: "Kaun Banega Karakorampati",
-      rule: "Ten questions from this evening. The points climb with every question.",
+      rule: "Ten questions. The points climb. A wrong answer costs 5, No idea costs nothing.",
       qs: [
         { id: "k1", pts: 10, q: "Which number calls the campus ambulance?", o: ["1000", "1500", "6666", "6915"], a: 2 },
         { id: "k2", pts: 10, q: "Which board runs the mess and hostel maintenance?", o: ["BHM", "BRCA", "BSA", "BSW"], a: 0 },

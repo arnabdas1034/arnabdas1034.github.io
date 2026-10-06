@@ -32,6 +32,13 @@
     t.textContent = msg; t.className = "on"; clearTimeout(toastT); toastT = setTimeout(() => (t.className = ""), 2600);
   }
 
+  // ---------- scoring rule: right = points, wrong = -penalty, "No idea" or blank = 0 ----------
+  const PEN = K.penalty || 0, NOIDEA = "No idea";
+  ACTS.forEach((a) => {
+    if (a.type === "q" && a.scored) a.qs.forEach((q) => { if (q.a != null) { q.o = q.o.concat([NOIDEA]); q.z = q.o.length - 1; } });
+    if (a.type === "match") a.z = a.doors.length;
+  });
+
   // ---------- the running order ----------
   const STEPS = [{ k: "lobby" }];
   ACTS.forEach((a, ai) => {
@@ -42,7 +49,7 @@
     if (a.type === "talk") a.cards.forEach((_, ci) => STEPS.push({ k: "card", a: ai, c: ci }));
     if (a.type === "wall") STEPS.push({ k: "wall", a: ai });
     if (last) STEPS.push({ k: "final", a: ai });
-    else { if (a.scored) STEPS.push({ k: "board", a: ai }); STEPS.push({ k: "break", a: ai }); }
+    else if (!a.chain) { if (a.scored) STEPS.push({ k: "board", a: ai }); STEPS.push({ k: "break", a: ai }); }
   });
   const qidsOf = (st) => {
     const a = ACTS[st.a]; if (!a) return [];
@@ -52,10 +59,12 @@
   };
   const KEYS = [];
   ACTS.forEach((a) => {
-    if (a.type === "q") a.qs.forEach((q) => { if (q.a != null) KEYS.push({ q: q.id, c: q.a, p: q.pts || a.pts || 10 }); });
-    if (a.type === "match") a.key.forEach((c, i) => KEYS.push({ q: a.id + i, c, p: a.pts || 10 }));
+    if (a.type === "q") a.qs.forEach((q) => { if (q.a != null) KEYS.push({ q: q.id, c: q.a, p: q.pts || a.pts || 10, n: PEN, z: q.z }); });
+    if (a.type === "match") a.key.forEach((c, i) => KEYS.push({ q: a.id + i, c, p: a.pts || 10, n: PEN, z: a.z }));
   });
   const KEYMAP = Object.fromEntries(KEYS.map((k) => [k.q, k]));
+  const pointsFor = (qid, c) => { const k = KEYMAP[qid]; if (!k || c == null || c < 0) return 0; return c === k.c ? k.p : c === k.z ? 0 : -k.n; };
+  const signed = (n) => (n > 0 ? "+" + n : n < 0 ? "\u2212" + Math.abs(n) : "0");
   function describe(n) {
     const st = STEPS[n]; if (!st) return "The end";
     const a = ACTS[st.a];
@@ -107,7 +116,7 @@
     S.seq = seq; S.state = state || { step: 0 };
     const g = S.state.gen ?? null;
     if (MODE === "play" && (store.get("gen", null) ?? null) !== g) {
-      me = null; answers = {}; store.del("me"); store.del("ans"); store.del("vc");
+      me = null; answers = {}; store.del("me"); store.del("ans"); store.del("myv");
     }
     store.set("gen", g);
     S.ready = true;
@@ -136,7 +145,7 @@
     busy = true;
     try {
       const st = STEPS[n], cur = S.state, a = ACTS[st.a];
-      const ns = { step: n, nT: cur.nT || 6, wallAuto: cur.wallAuto !== false };
+      const ns = { step: n, nT: cur.nT || 6, wallAuto: cur.wallAuto === true };
       if (cur.gen != null) ns.gen = cur.gen;
       if (st.k === "open") { ns.gate = "s" + n; ns.qids = qidsOf(st); ns.dur = a.dur || 20; ns.stamp = 1; }
       if (st.k === "card") { ns.dur = a.dur || 60; ns.stamp = 1; }
@@ -183,7 +192,7 @@
     let s = 0; const upto = S.state.step || 0;
     STEPS.forEach((st, i) => {
       if (st.k !== "reveal" || i > upto) return;
-      qidsOf(st).forEach((q) => { const k = KEYMAP[q]; if (k && answers[q] === k.c) s += k.p; });
+      qidsOf(st).forEach((q) => { s += pointsFor(q, answers[q]); });
     });
     return s;
   }
@@ -226,10 +235,10 @@
       const q = a.qs[st.q], mine = answers[q.id], k = KEYMAP[q.id];
       if (!k) body = `<div class="pcard center"><p class="kick">${esc(a.kicker)}</p><h2>${esc(q.q)}</h2><p class="lead">You said: <b>${mine != null ? esc(q.o[mine]) : "nothing"}</b></p><p class="muted">See how the room answered on the screen.</p></div>`;
       else {
-        const ok = mine === k.c;
-        body = `<div class="pcard center res ${ok ? "ok" : "no"}"><p class="kick">${esc(a.kicker)}</p>
-          <div class="mark">${ok ? "✓" : mine == null ? "–" : "✕"}</div>
-          <h1>${ok ? "+" + k.p + " points" : mine == null ? "No answer" : "Not this time"}</h1>
+        const ok = mine === k.c, zero = mine == null || mine === k.z, pts = pointsFor(q.id, mine);
+        body = `<div class="pcard center res ${ok ? "ok" : zero ? "" : "no"}"><p class="kick">${esc(a.kicker)}</p>
+          <div class="mark">${ok ? "✓" : zero ? "–" : "✕"}</div>
+          <h1>${ok ? "+" + k.p + " points" : mine == null ? "No answer · 0" : zero ? "No idea · 0" : signed(pts) + " points"}</h1>
           <p class="lead">Answer: <b>${esc(q.o[k.c])}</b></p>${q.why ? `<p class="muted">${esc(q.why)}</p>` : ""}</div>`;
       }
     } else if (st.k === "open" && a.type === "match") {
@@ -237,31 +246,32 @@
       const open = isOpen(), done = a.probs.every((_, i) => answers[a.id + i] != null);
       body = `<div class="pcard"><p class="kick">${esc(a.kicker)}<span class="ptimer" id="timer"></span></p><h2>${esc(a.title)}</h2>
         ${a.probs.map((p, i) => `<label class="mrow"><span><i>${LET[i]}</i>${esc(p)}</span>
-          <select data-m="${i}" ${open ? "" : "disabled"}><option value="-1">Choose a door…</option>${a.doors.map((d, j) => `<option value="${j}" ${matchSel[i] === j ? "selected" : ""}>${j + 1}. ${esc(d)}</option>`).join("")}</select></label>`).join("")}
+          <select data-m="${i}" ${open ? "" : "disabled"}><option value="-1">Choose a door…</option>${a.doors.map((d, j) => `<option value="${j}" ${matchSel[i] === j ? "selected" : ""}>${j + 1}. ${esc(d)}</option>`).join("")}<option value="${a.z}" ${matchSel[i] === a.z ? "selected" : ""}>${NOIDEA}</option></select></label>`).join("")}
         <button class="primary" data-act="match" ${open ? "" : "disabled"}>${!open ? "Time is up" : done ? "Update my answers" : "Lock in my answers"}</button>
-        ${done ? `<p class="muted center">Locked in. You can still change them.</p>` : ""}</div>`;
+        <p class="muted center">${done ? "Locked in. You can still change them." : "Anything you leave blank counts as No idea."}</p></div>`;
     } else if (st.k === "reveal" && a.type === "match") {
-      let got = 0;
-      const rows = a.probs.map((p, i) => { const ok = answers[a.id + i] === a.key[i]; if (ok) got++; return `<div class="mres ${ok ? "ok" : "no"}"><b>${ok ? "✓" : "✕"}</b><span>${esc(p)}<small>${esc(a.doors[a.key[i]])}</small></span></div>`; }).join("");
-      body = `<div class="pcard"><p class="kick">${esc(a.kicker)}</p><h2>${got} of ${a.probs.length} correct · +${got * (a.pts || 10)} points</h2>${rows}</div>`;
+      let got = 0, bad = 0, net = 0;
+      const rows = a.probs.map((p, i) => { const m = answers[a.id + i], ok = m === a.key[i], zero = m == null || m === a.z; if (ok) got++; else if (!zero) bad++; net += pointsFor(a.id + i, m);
+        return `<div class="mres ${ok ? "ok" : zero ? "" : "no"}"><b>${ok ? "✓" : zero ? "–" : "✕"}</b><span>${esc(p)}<small>${esc(a.doors[a.key[i]])}</small></span></div>`; }).join("");
+      body = `<div class="pcard"><p class="kick">${esc(a.kicker)}</p><h2>${got} right, ${bad} wrong · ${signed(net)} points</h2>${rows}</div>`;
     } else if (st.k === "card") {
       const c = a.cards[st.c];
       body = `<div class="pcard center"><p class="kick">${esc(a.kicker)} · Scenario ${LET[st.c]}<span class="ptimer" id="timer"></span></p><h2 class="serif">${esc(c.t)}</h2><p class="muted">Talk to your team. Raise your hand to answer.</p></div>`;
-    } else if (st.k === "wall" || st.k === "final") {
-      const sent = store.get("vc", 0);
-      const form = `<div class="pcard"><p class="kick">Your Voice</p><h2>One problem, or one idea</h2>
-        <p class="muted">${esc(K.host)} takes these to the SAC General Body Meeting. Your name is not shown on the screen.</p>
+    } else if (st.k === "wall") {
+      const mv = store.get("myv", null);
+      body = mv ? `<div class="pcard center"><p class="kick">Your Voice</p><div class="mark sent">✓</div><h2>Sent</h2>
+          ${mv.t ? `<p class="lead quote">${esc(mv.t)}</p>` : ""}<p class="muted">${esc(K.host)} has it. One message each, so this is yours.</p></div>`
+        : `<div class="pcard"><p class="kick">Your Voice</p><h2>One problem, or one idea</h2>
+        <p class="muted">${esc(K.host)} takes these to the SAC General Body Meeting. He can see who sent each one.</p>
         <textarea id="vtext" maxlength="300" rows="4" placeholder="Write it here…"></textarea>
-        <label class="chk"><input type="checkbox" id="vname"> Share my name with ${esc(K.host)}, so he can follow up</label>
+        <label class="chk"><input type="checkbox" id="vname"> Show my name and team on the big screen</label>
         <button class="primary" data-act="voice">Send</button>
-        ${sent ? `<p class="muted center">${sent} sent. You can add more.</p>` : ""}</div>`;
-      if (st.k === "wall") body = form;
-      else {
-        const b = s.board, pos = b && b.teams ? b.teams.findIndex((t) => t.team === me.team) : -1;
-        body = `<div class="pcard center"><p class="kick">Final results</p><h1>${myScore()} points</h1>
-          ${pos >= 0 ? `<p class="lead">Team ${esc(K.teams[me.team])} finished <b>#${pos + 1}</b></p>` : ""}</div>
-          <div class="pcard">${boardHtml(b)}</div>${form}`;
-      }
+        <p class="muted center">You can send only one, and you cannot change it.</p></div>`;
+    } else if (st.k === "final") {
+      const b = s.board, pos = b && b.teams ? b.teams.findIndex((t) => t.team === me.team) : -1;
+      body = `<div class="pcard center"><p class="kick">Final results</p><h1>${myScore()} points</h1>
+        ${pos >= 0 ? `<p class="lead">Team ${esc(K.teams[me.team])} finished <b>#${pos + 1}</b></p>` : ""}</div>
+        <div class="pcard">${boardHtml(b)}</div>`;
     } else if (st.k === "board") {
       body = `<div class="pcard"><p class="kick">Leaderboard</p>${boardHtml(s.board)}</div>`;
     } else {
@@ -306,8 +316,7 @@
     if (act === "match") {
       if (!isOpen()) return;
       const sel = matchSel || [];
-      if (sel.some((v) => v < 0)) return toast("Match all six first.");
-      const arr = sel.map((c, i) => ({ q: a.id + i, c }));
+      const arr = sel.map((c, i) => ({ q: a.id + i, c: c < 0 ? a.z : c }));
       const r = await rpc("kk_submit", { p_pid: me.id, p_gate: S.state.gate, p_answers: arr });
       if (r && r.ok) { arr.forEach((x) => (answers[x.q] = x.c)); store.set("ans", answers); toast("Locked in."); render(); }
       else if (r && r.err === "closed") toast("Too late, time was up.");
@@ -316,11 +325,13 @@
     if (act === "voice") {
       const t = ($("#vtext").value || "").trim();
       if (t.length < 3) return toast("Write a little more.");
-      if (store.get("vc", 0) >= 8) return toast("That is plenty. Thank you.");
-      if (sending) return; sending = true;
-      const r = await rpc("kk_voice_add", { p_body: t, p_name: $("#vname").checked ? me.name : null });
+      if (store.get("myv", null) || sending) return; sending = true;
+      const show = $("#vname").checked;
+      const r = await rpc("kk_voice_send", { p_pid: me.id, p_body: t, p_show: show });
       sending = false;
-      if (r && r.ok) { store.set("vc", store.get("vc", 0) + 1); toast("Sent. Thank you."); voiceSent = true; render(); }
+      if (r && r.ok) { store.set("myv", { t, show }); toast("Sent. Thank you."); voiceSent = true; render(); }
+      else if (r && r.err === "dup") { store.set("myv", { t: "", show }); toast("You have already sent one."); render(); }
+      else if (r && r.err === "nojoin") { me = null; store.del("me"); toast("Please join again."); render(); }
       else if (r) toast("Could not send. Try again.");
     }
   }
@@ -352,7 +363,7 @@
       const tot = Object.values(cnt).reduce((x, y) => x + y, 0);
       const pts = k ? ` · ${k.p} points` : "";
       return frame(`${rev ? "" : timerEl()}${head(a, a.qs.length > 1 ? ` · ${st.q + 1} of ${a.qs.length}${pts}` : pts)}
-        <h1 class="qtext">${esc(q.q)}</h1>
+        <h1 class="qtext ${q.q.length > 52 ? "long" : ""}">${esc(q.q)}</h1>
         <div class="sopts n${q.o.length}">${q.o.map((o, i) => {
           const c = cnt[i] || 0, pc = tot ? Math.round((c / tot) * 100) : 0;
           return `<div class="sopt ${rev ? (k && k.c === i ? "right" : k ? "dim" : "poll") : ""}"><u style="width:${rev ? pc : 0}%"></u><i>${LET[i]}</i><span>${esc(o)}</span>${rev ? `<em>${pc}%</em>` : ""}</div>`;
@@ -376,7 +387,7 @@
     if (st.k === "wall") {
       const vis = voices.filter((v) => !v.hidden).slice(-18).reverse();
       return frame(`${head(a, ` · ${voices.filter((v) => !v.hidden).length} so far`)}<h1 class="mtitle">${esc(a.rule)}</h1>
-        <div class="wall" id="wall">${vis.map((v) => `<div class="note">${esc(v.body)}</div>`).join("") || `<p class="lead muted">Waiting for the first one…</p>`}</div>`);
+        <div class="wall" id="wall">${vis.map((v) => `<div class="note">${esc(v.body)}${v.show && v.name ? `<small>${esc(v.name)}${K.teams[v.team] ? " · " + esc(K.teams[v.team]) : ""}</small>` : ""}</div>`).join("") || `<p class="lead muted">Waiting for the first one…</p>`}</div>`);
     }
     if (st.k === "board") return frame(`<p class="kick">Leaderboard</p><div class="bwrap"><div>${boardHtml(s.board, true)}</div><div class="side"><p class="kick">Top scorers</p>${topHtml(s.board, 5)}</div></div>`);
     if (st.k === "final") {
@@ -405,7 +416,7 @@
     if ((st.k === "open" || st.k === "reveal") && a.type === "q") { const q = a.qs[st.q]; return q.a != null ? `Answer: ${LET[q.a]}. ${q.o[q.a]}. ${q.why || ""}` : "Poll. No right answer."; }
     if (a && a.type === "match") return "Key: " + a.key.map((d, i) => `${LET[i]}-${d + 1}`).join(", ");
     if (st.k === "card") return a.cards[st.c].notes + " Give points from the Points tab.";
-    if (st.k === "wall") return "Read a few out loud. Hide anything rude from the Voice tab.";
+    if (st.k === "wall") return "Open the Voice tab. Tap Show on the ones you want on the big screen, then read them out.";
     if (st.k === "break") return "Switch to your slides. Press Next when you are ready for the next game.";
     return "";
   }
@@ -429,10 +440,10 @@
         <button class="ghost" data-act="peek">Check standings (only you see this)</button><div id="peek"></div>`;
     }
     if (hostTab === "voice") {
-      body = `<h2>${voices.length} points received</h2>
-        <label class="chk"><input type="checkbox" id="wauto" ${s.wallAuto !== false ? "checked" : ""}> Show new points on the screen straight away</label>
+      body = `<h2>${voices.length} messages received</h2><p class="muted">Nothing goes on the big screen until you tap Show.</p>
+        <label class="chk"><input type="checkbox" id="wauto" ${s.wallAuto === true ? "checked" : ""}> Show new messages on the screen straight away</label>
         <div class="row2"><button class="ghost" data-act="vcopy">Copy all</button><button class="ghost" data-act="vcsv">Download CSV</button></div>
-        <div class="vlist">${voices.slice().reverse().map((v) => `<div class="vrow ${v.hidden ? "hid" : ""}"><p>${esc(v.body)}${v.name ? `<small>${esc(v.name)}</small>` : ""}</p><button class="ghost" data-act="vhide" data-id="${v.id}" data-h="${v.hidden ? 0 : 1}">${v.hidden ? "Show" : "Hide"}</button></div>`).join("") || `<p class="muted">Nothing yet.</p>`}</div>`;
+        <div class="vlist">${voices.slice().reverse().map((v) => `<div class="vrow ${v.hidden ? "" : "live"}"><p>${esc(v.body)}<small>${esc(v.name || "No name")}${K.teams[v.team] ? " · " + esc(K.teams[v.team]) : ""} · ${v.show ? "name will show on screen" : "name stays off screen"}${v.hidden ? "" : " · ON SCREEN"}</small></p><button class="ghost" data-act="vhide" data-id="${v.id}" data-h="${v.hidden ? 0 : 1}">${v.hidden ? "Show" : "Hide"}</button></div>`).join("") || `<p class="muted">Nothing yet.</p>`}</div>`;
     }
     if (hostTab === "ppl") {
       body = `<h2>${players.filter((p) => !p.hidden).length} players</h2><p class="muted">Tap a name to remove it from the game and the leaderboard.</p>
@@ -478,10 +489,10 @@
     if (act === "vhide") { await rpc("kk_voice_hide", { p_pin: pin, p_id: +el.dataset.id, p_hidden: el.dataset.h === "1" }); refreshHost(); }
     if (act === "phide") { await rpc("kk_player_hide", { p_pin: pin, p_id: el.dataset.id, p_hidden: el.dataset.h === "1" }); refreshHost(); }
     if (act === "vcopy" || act === "vcsv") {
-      const rows = voices.map((v) => ({ when: new Date(v.at).toLocaleString("en-IN"), point: v.body, name: v.name || "", hidden: v.hidden ? "yes" : "" }));
-      if (act === "vcopy") { try { await navigator.clipboard.writeText(rows.map((r, i) => `${i + 1}. ${r.point}${r.name ? " (" + r.name + ")" : ""}`).join("\n")); toast("Copied."); } catch { toast("Could not copy."); } }
+      const rows = voices.map((v) => ({ when: new Date(v.at).toLocaleString("en-IN"), point: v.body, name: v.name || "", team: K.teams[v.team] || "", shown: v.hidden ? "" : "yes" }));
+      if (act === "vcopy") { try { await navigator.clipboard.writeText(rows.map((r, i) => `${i + 1}. ${r.point}${r.name ? " (" + r.name + (r.team ? ", " + r.team : "") + ")" : ""}`).join("\n")); toast("Copied."); } catch { toast("Could not copy."); } }
       else {
-        const csv = "﻿When,Point,Name,Hidden\n" + rows.map((r) => [r.when, r.point, r.name, r.hidden].map((x) => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const csv = "﻿When,Message,Name,Team,Shown on screen\n" + rows.map((r) => [r.when, r.point, r.name, r.team, r.shown].map((x) => `"${String(x).replace(/"/g, '""')}"`).join(",")).join("\n");
         const u = URL.createObjectURL(new Blob([csv], { type: "text/csv" })), l = document.createElement("a");
         l.href = u; l.download = "your-voice-points.csv"; l.click(); setTimeout(() => URL.revokeObjectURL(u), 2000);
       }

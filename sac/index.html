@@ -75,6 +75,9 @@ textarea{resize:vertical;min-height:110px}
 .team small{font-size:12px;color:var(--soft)}
 .team.sel{background:var(--gold);color:var(--ink)}.team.sel small{color:var(--ox)}
 .res .mark{width:84px;height:84px;margin:4px auto;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:40px;line-height:1}
+.res .mark,.mark.sent{color:var(--goldl)}
+.mark.sent{width:84px;height:84px;margin:4px auto;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:40px;line-height:1}
+.quote{font-family:var(--serif);font-style:italic;font-size:21px;border-left:2px solid var(--gold);padding-left:12px;text-align:left}
 .res.ok .mark{color:var(--ok)}.res.no .mark{color:var(--no)}
 .mrow{display:grid;gap:8px;padding-top:12px;border-top:1px solid rgba(201,162,75,.3)}
 .mrow span{font-family:var(--serif);font-size:20px;display:flex;gap:10px}
@@ -112,6 +115,7 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 .plist .ghost{text-align:left;color:var(--ivory);display:grid}.plist small,.vrow small{display:block;color:var(--soft);font-size:12px;font-weight:400}
 .hid{opacity:.45;text-decoration:line-through}
 .vrow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;border-top:1px solid rgba(201,162,75,.3);padding-top:10px}
+.vrow.live p{color:var(--goldl)}
 .link{word-break:break-all;font-size:14px;color:var(--goldl)}
 
 /* ---------- projector ---------- */
@@ -145,6 +149,10 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 .sopt.right{background:var(--gold);color:var(--ink);border-color:var(--goldl);box-shadow:0 0 5vw rgba(201,162,75,.35)}
 .sopt.right i,.sopt.right em{color:var(--ox)}.sopt.right u{background:rgba(43,10,19,.14)}
 .sopt.dim{opacity:.5}
+.sopts.n5 .sopt{min-height:12vh;font-size:2.7vw;padding:1.6vh 1.8vw}
+.sopts.n5 .sopt:last-child{grid-column:1/-1;min-height:7.5vh;font-size:2.2vw;border-style:dashed}
+.sopts.n3 .sopt:last-child{border-style:dashed}
+.qtext.long{font-size:3.7vw;min-height:0;margin-bottom:3vh}
 .status{margin-top:auto;padding-bottom:3vh;font-size:2vw;color:var(--soft);font-family:var(--serif);font-style:italic;min-height:5vh}
 .status b{font-family:var(--sans);font-style:normal;color:var(--goldl);font-size:2.6vw}
 .timer{position:absolute;top:7.5vh;right:5.5vw;width:8.6vw;height:8.6vw;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-weight:600;font-size:4vw;color:var(--ivory);
@@ -165,6 +173,7 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 .mline span{flex:1}.mline b{color:var(--goldl);font-family:var(--sans);font-size:1.8vw;flex:1}.mline em{font-style:normal;font-family:var(--sans);font-size:1.4vw;color:var(--soft);width:9vw;text-align:right}
 .wall{flex:1;columns:3;column-gap:1.6vw;overflow:hidden;margin-bottom:5vh}
 .note{break-inside:avoid;background:var(--ivory);color:var(--ink);padding:1.8vh 1.3vw;margin:0 0 1.6vh;font-size:1.95vw;line-height:1.25;font-family:var(--serif);font-weight:600;border-left:.4vw solid var(--gold);animation:pop .5s ease-out}
+.note small{display:block;margin-top:.8vh;font-family:var(--sans);font-weight:700;font-size:1.05vw;letter-spacing:.06em;color:var(--ox)}
 @keyframes pop{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .bwrap{flex:1;display:grid;grid-template-columns:1.9fr 1fr;gap:5vw;align-items:center;padding-bottom:4vh}
 .bwrap.fin{align-items:start;padding-top:1vh}
@@ -181,10 +190,10 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 </head>
 <body>
 <div id="app"></div>
-<script src="content.js?v=3"></script>
+<script src="content.js?v=4"></script>
 <script src="lib/supabase.js"></script>
 <script src="lib/qrcode.js"></script>
-<script src="mock.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="mock.js?v=4"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
