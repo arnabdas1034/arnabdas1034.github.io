@@ -105,6 +105,7 @@
   const S = { state: { step: 0 }, seq: -1, teams: {}, off: 0, ready: false };
   let me = store.get("me", null);
   let answers = store.get("ans", {});
+  let myBonus = 0;
   let pin = store.get("pin", null);
   let authed = false;
   const nT = () => Math.min(K.teams.length, Math.max(2, S.state.nT || 6));
@@ -116,11 +117,12 @@
     S.seq = seq; S.state = state || { step: 0 };
     const g = S.state.gen ?? null;
     if (MODE === "play" && (store.get("gen", null) ?? null) !== g) {
-      me = null; answers = {}; store.del("me"); store.del("ans"); store.del("myv");
+      me = null; answers = {}; myBonus = 0; store.del("me"); store.del("ans"); store.del("myv");
     }
     store.set("gen", g);
     S.ready = true;
     render();
+    if (MODE === "play" && me) rpc("kk_mine", { p_pid: me.id }, true).then((r) => { if (r && r.ok && r.bonus !== myBonus) { myBonus = r.bonus; render(); } });
   }
   async function pull() {
     const r = await rpc("kk_get", {}, true);
@@ -129,7 +131,7 @@
     const tc = JSON.stringify(r.teams || {}) !== JSON.stringify(S.teams);
     S.teams = r.teams || {};
     if (r.seq !== S.seq || !S.ready) applyState(r.state, r.seq);
-    else if (tc) { if (MODE === "host" && hostTab !== "set" && hostTab !== "voice") render(); else soft(); }
+    else if (tc) { if (MODE === "host" && hostTab !== "set" && hostTab !== "voice" && hostTab !== "pts") render(); else soft(); }
   }
   function loop() {
     const wait = MODE === "play" ? (rtOk ? 8000 + Math.random() * 4000 : 2500 + Math.random() * 1500) : 2000;
@@ -194,7 +196,7 @@
       if (st.k !== "reveal" || i > upto) return;
       qidsOf(st).forEach((q) => { s += pointsFor(q, answers[q]); });
     });
-    return s;
+    return s + myBonus;
   }
   function boardHtml(b, big) {
     if (!b || !b.teams || !b.teams.length) return `<p class="muted">No scores yet.</p>`;
@@ -409,20 +411,20 @@
   // =====================================================================
   //  HOST REMOTE
   // =====================================================================
-  let players = [], hostTab = "run", bonusTeam = 0;
+  let players = [], hostTab = "run", bonusTeam = 0, board = null, bonusPid = null, psearch = "";
   function hostNotes() {
     const st = step(), a = ACTS[st.a];
     if (st.k === "lobby") return "Wait until most people have joined, then press Next.";
     if ((st.k === "open" || st.k === "reveal") && a.type === "q") { const q = a.qs[st.q]; return q.a != null ? `Answer: ${LET[q.a]}. ${q.o[q.a]}. ${q.why || ""}` : "Poll. No right answer."; }
     if (a && a.type === "match") return "Key: " + a.key.map((d, i) => `${LET[i]}-${d + 1}`).join(", ");
-    if (st.k === "card") return a.cards[st.c].notes + " Give points from the Points tab.";
+    if (st.k === "card") return a.cards[st.c].notes + " Give points from the Board tab.";
     if (st.k === "wall") return "Open the Voice tab. Tap Show on the ones you want on the big screen, then read them out.";
     if (st.k === "break") return "Switch to your slides. Press Next when you are ready for the next game.";
     return "";
   }
   function hostView() {
     const s = S.state, n = s.step || 0, joined = Object.values(S.teams).reduce((x, y) => x + y, 0);
-    const tabs = [["run", "Run"], ["pts", "Points"], ["voice", "Voice"], ["ppl", "People"], ["set", "Setup"]];
+    const tabs = [["run", "Run"], ["pts", "Board"], ["voice", "Voice"], ["ppl", "People"], ["set", "Setup"]];
     let body = "";
     if (hostTab === "run") {
       body = `<div class="hnow"><small>Step ${n + 1} of ${STEPS.length} · ${joined} joined${rtOk || MOCK ? "" : " · slow link"}</small>
@@ -433,11 +435,17 @@
         <details><summary>Jump to a game</summary><div class="jump">${STEPS.map((st, i) => (st.k === "intro" || st.k === "lobby" || st.k === "final" ? `<button class="ghost" data-act="jump" data-n="${i}">${esc(st.k === "lobby" ? "Lobby" : st.k === "final" ? "Final results" : ACTS[st.a].title)}</button>` : "")).join("")}</div></details>`;
     }
     if (hostTab === "pts") {
-      body = `<h2>Give points to a team</h2><div class="teams">${K.teams.slice(0, nT()).map((t, i) => `<button class="team ${bonusTeam === i ? "sel" : ""}" data-act="bteam" data-t="${i}"><b>${esc(t)}</b><small>${S.teams[i] || 0} in</small></button>`).join("")}</div>
+      const all = (board && board.all) || [], sel = all.find((p) => p.id === bonusPid), q = psearch.trim().toLowerCase();
+      body = `<h2>Team leaderboard</h2><div id="lbt">${boardHtml(board)}</div>
+        <h2>Give points to a team</h2><div class="teams">${K.teams.slice(0, nT()).map((t, i) => `<button class="team ${bonusTeam === i ? "sel" : ""}" data-act="bteam" data-t="${i}"><b>${esc(t)}</b><small>${S.teams[i] || 0} in</small></button>`).join("")}</div>
         <div class="row3">${[5, 10, 20].map((p) => `<button class="primary" data-act="bonus" data-p="${p}">+${p}</button>`).join("")}</div>
         <button class="ghost" data-act="bonus" data-p="-10">Take back 10</button>
         <p class="muted">Team score is the average of its players, plus these points.</p>
-        <button class="ghost" data-act="peek">Check standings (only you see this)</button><div id="peek"></div>`;
+        <h2>Individual leaderboard</h2><p class="muted">Search a name, tap it, then give points. These points also count in the team average.</p>
+        <input id="psearch" placeholder="Search a name" autocomplete="off" value="${esc(psearch)}">
+        <div class="psel"><b>${sel ? esc(sel.name) + " · " + sel.score + " pts" : "No one selected"}</b>
+        <div class="row4">${[5, 10, 20, -10].map((p) => `<button class="${p > 0 ? "primary" : "ghost"}" data-act="pbonus" data-p="${p}" ${sel ? "" : "disabled"}>${p > 0 ? "+" + p : "\u2212" + -p}</button>`).join("")}</div></div>
+        <div class="lb" id="lbp">${all.map((p, i) => `<button class="lrow ${p.id === bonusPid ? "sel" : ""}" data-act="bpl" data-id="${p.id}" data-n="${esc(p.name.toLowerCase())}" ${q && !p.name.toLowerCase().includes(q) ? "hidden" : ""}><span class="rank">${i + 1}</span><span><b>${esc(p.name)}</b><small>${esc(K.teams[p.team] || "")}${p.bonus ? " · given " + signed(p.bonus) : ""}</small></span><em>${p.score}</em></button>`).join("") || `<p class="muted">No players yet.</p>`}</div>`;
     }
     if (hostTab === "voice") {
       body = `<h2>${voices.length} messages received</h2><p class="muted">Nothing goes on the big screen until you tap Show.</p>
@@ -483,9 +491,14 @@
     if (act === "bteam") { bonusTeam = +el.dataset.t; render(); }
     if (act === "bonus") {
       const p = +el.dataset.p, r = await rpc("kk_bonus_add", { p_pin: pin, p_team: bonusTeam, p_points: p, p_note: describe(S.state.step || 0) });
-      if (r && r.ok) toast(`${p > 0 ? "+" : ""}${p} to ${K.teams[bonusTeam]}`);
+      if (r && r.ok) { toast(`${p > 0 ? "+" : ""}${p} to ${K.teams[bonusTeam]}`); await loadBoard(true); }
     }
-    if (act === "peek") { const b = await rpc("kk_board", { p_pin: pin }); if (b && b.ok) $("#peek").innerHTML = boardHtml(b) + topHtml(b, 5); }
+    if (act === "bpl") { bonusPid = el.dataset.id; render(); }
+    if (act === "pbonus") {
+      const who = ((board && board.all) || []).find((x) => x.id === bonusPid); if (!who) return;
+      const p = +el.dataset.p, r = await rpc("kk_bonus_player", { p_pin: pin, p_pid: bonusPid, p_points: p, p_note: describe(S.state.step || 0) });
+      if (r && r.ok) { toast(`${p > 0 ? "+" : ""}${p} to ${who.name}`); await loadBoard(true); } else toast("Could not add points.");
+    }
     if (act === "vhide") { await rpc("kk_voice_hide", { p_pin: pin, p_id: +el.dataset.id, p_hidden: el.dataset.h === "1" }); refreshHost(); }
     if (act === "phide") { await rpc("kk_player_hide", { p_pin: pin, p_id: el.dataset.id, p_hidden: el.dataset.h === "1" }); refreshHost(); }
     if (act === "vcopy" || act === "vcsv") {
@@ -504,9 +517,16 @@
     }
     if (act === "logout") { store.del("pin"); pin = null; authed = false; render(); }
   }
+  async function loadBoard(force) {
+    const b = await rpc("kk_board", { p_pin: pin }, true); if (!b || !b.ok) return;
+    const ch = JSON.stringify(b) !== JSON.stringify(board); board = b;
+    const typing = document.activeElement && document.activeElement.id === "psearch";
+    if (hostTab === "pts" && (force || (ch && !typing))) render();
+  }
   async function refreshHost() {
     if (!authed) return;
     const st = step();
+    if (MODE === "host" && hostTab === "pts") await loadBoard();
     if (MODE === "host" && hostTab === "ppl") { const r = await rpc("kk_players_list", { p_pin: pin }, true); if (r && r.ok && JSON.stringify(r.rows) !== JSON.stringify(players)) { players = r.rows; render(); } }
     if ((MODE === "host" && hostTab === "voice") || (MODE === "screen" && st.k === "wall")) {
       const r = await rpc("kk_voices_list", { p_pin: pin }, true);
@@ -574,6 +594,11 @@
     const el = e.target.closest("[data-act]"); if (!el || el.disabled) return;
     const act = el.dataset.act;
     if (MODE === "play") playAct(act, el); else hostAct(act, el);
+  });
+  root.addEventListener("input", (e) => {
+    if (e.target.id !== "psearch") return;
+    psearch = e.target.value; const q = psearch.trim().toLowerCase();
+    document.querySelectorAll("#lbp .lrow").forEach((r) => { r.hidden = !!q && !r.dataset.n.includes(q); });
   });
   root.addEventListener("change", (e) => {
     const t = e.target;

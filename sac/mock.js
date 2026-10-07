@@ -44,13 +44,16 @@ window.kkMock = function (ROOM) {
     },
     kk_board(a) {
       if (a.p_pin !== PIN) return no; const d = load();
-      const sc = livePlayers(d).map((p) => { const an = d.answers[p.id] || {}; let s = 0; Object.keys(an).forEach((q) => { const k = d.keys[q]; if (!k || an[q] < 0) return; s += an[q] === k.c ? k.p : an[q] === k.z ? 0 : -k.n; }); return { name: p.name, team: p.team, score: s, at: p.at }; });
+      const sc = livePlayers(d).map((p) => { const an = d.answers[p.id] || {}; let s = 0; Object.keys(an).forEach((q) => { const k = d.keys[q]; if (!k || an[q] < 0) return; s += an[q] === k.c ? k.p : an[q] === k.z ? 0 : -k.n; }); const pb = d.bonus.filter((b) => b.pid === p.id).reduce((x, b) => x + b.points, 0); return { id: p.id, name: p.name, team: p.team, score: s + pb, bonus: pb, at: p.at }; });
       const tm = {}; sc.forEach((p) => { tm[p.team] = tm[p.team] || { team: p.team, n: 0, sum: 0 }; tm[p.team].n++; tm[p.team].sum += p.score; });
-      const teams = Object.values(tm).map((t) => { const avg = Math.round((t.sum / t.n) * 10) / 10, bonus = d.bonus.filter((b) => b.team === t.team).reduce((x, b) => x + b.points, 0); return { team: t.team, n: t.n, avg, bonus, total: avg + bonus }; }).sort((x, y) => y.total - x.total || x.team - y.team);
-      const top = sc.sort((x, y) => y.score - x.score || x.at - y.at).slice(0, 10).map(({ name, team, score }) => ({ name, team, score }));
-      return { ok: true, teams, top, players: sc.length };
+      const teams = Object.values(tm).map((t) => { const avg = Math.round((t.sum / t.n) * 10) / 10, bonus = d.bonus.filter((b) => b.pid == null && b.team === t.team).reduce((x, b) => x + b.points, 0); return { team: t.team, n: t.n, avg, bonus, total: avg + bonus }; }).sort((x, y) => y.total - x.total || x.team - y.team);
+      sc.sort((x, y) => y.score - x.score || x.at - y.at);
+      const top = sc.slice(0, 10).map(({ name, team, score }) => ({ name, team, score }));
+      return { ok: true, teams, top, all: sc.map(({ at, ...r }) => r), players: sc.length };
     },
     kk_bonus_add(a) { if (a.p_pin !== PIN) return no; const d = load(); d.bonus.push({ team: a.p_team, points: a.p_points }); save(d); return { ok: true }; },
+    kk_bonus_player(a) { if (a.p_pin !== PIN) return no; const d = load(); if (!d.players[a.p_pid] || d.players[a.p_pid].gone) return { ok: false, err: "who" }; d.bonus.push({ pid: a.p_pid, points: a.p_points }); save(d); return { ok: true }; },
+    kk_mine(a) { const d = load(); return { ok: true, bonus: d.bonus.filter((b) => b.pid === a.p_pid).reduce((x, b) => x + b.points, 0) }; },
     kk_voice_send(a) {
       const d = load(), b = String(a.p_body || "").trim().slice(0, 300), p = d.players[a.p_pid];
       if (!p || p.gone) return { ok: false, err: "nojoin" };

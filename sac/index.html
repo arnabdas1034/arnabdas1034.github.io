@@ -114,6 +114,15 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 .plist{grid-template-columns:1fr 1fr}
 .plist .ghost{text-align:left;color:var(--ivory);display:grid}.plist small,.vrow small{display:block;color:var(--soft);font-size:12px;font-weight:400}
 .hid{opacity:.45;text-decoration:line-through}
+.row4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.psel{position:sticky;top:96px;z-index:3;background:rgba(34,7,15,.97);border:1px solid rgba(201,162,75,.5);border-radius:10px;padding:10px}
+.psel b{font-family:var(--serif);font-size:18px}
+.lb{display:grid;gap:6px}
+.lrow{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;text-align:left;background:transparent;border:1px solid rgba(201,162,75,.3);border-radius:10px;padding:9px 12px;color:var(--ivory)}
+.lrow.sel{border-color:var(--gold);background:rgba(201,162,75,.16)}
+.lrow[hidden]{display:none}
+.lrow b{font-size:16px}.lrow small{display:block;color:var(--soft);font-size:12px}.lrow em{font-style:normal;font-weight:700;color:var(--goldl);font-size:17px}.lrow .rank{color:var(--soft);font-weight:700}
+#psearch{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(201,162,75,.5);background:rgba(0,0,0,.25)}
 .vrow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;border-top:1px solid rgba(201,162,75,.3);padding-top:10px}
 .vrow.live p{color:var(--goldl)}
 .link{word-break:break-all;font-size:14px;color:var(--goldl)}
@@ -190,10 +199,10 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 </head>
 <body>
 <div id="app"></div>
-<script src="content.js?v=4"></script>
+<script src="content.js?v=5"></script>
 <script src="lib/supabase.js"></script>
 <script src="lib/qrcode.js"></script>
-<script src="mock.js?v=4"></script>
-<script src="app.js?v=4"></script>
+<script src="mock.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>
