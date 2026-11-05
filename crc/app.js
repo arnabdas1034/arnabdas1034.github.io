@@ -55,7 +55,7 @@
     if (a.type === "talk") a.cards.forEach((_, ci) => STEPS.push({ k: "card", a: ai, c: ci }));
     if (a.type === "wall") STEPS.push({ k: "wall", a: ai });
     if (last) STEPS.push({ k: "final", a: ai });
-    else if (!a.chain) { if (a.board) STEPS.push({ k: "board", a: ai }); if (!(ACTS[ai + 1] && ACTS[ai + 1].chainIn)) STEPS.push({ k: "break", a: ai }); }
+    else { if (a.board) STEPS.push({ k: "board", a: ai }); if (!a.chain) STEPS.push({ k: "break", a: ai }); }
   });
   const qidsOf = (st) => {
     const a = ACTS[st.a]; if (!a) return [];

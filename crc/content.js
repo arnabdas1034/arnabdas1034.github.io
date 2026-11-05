@@ -36,7 +36,7 @@
     acts: [
       // ---- before Slide 2 ----
       {
-        id: "w", type: "q", scored: true, pen: 0, dur: 15, pts: 10,
+        id: "w", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
         kicker: "Predict · before we teach", title: "Gut feeling",
         rule: "Two guesses before the story starts. +10 if right. Wrong costs nothing.",
         qs: [
@@ -50,7 +50,7 @@
       },
       // ---- after Slide 3 ----
       {
-        id: "s", type: "match", scored: true, dur: 30, pts: 10, chips: true,
+        id: "s", type: "match", scored: true, dur: 30, pts: 10, chips: true, chain: true,
         kicker: "Check · Slides 2 and 3", title: "Winners or losers?",
         rule: "When the forest broke apart, who gained and who lost? +10 each, −5 if wrong.",
         probs: ["Amphibians", "Amniotes (early reptile-like animals)", "Giant lycopsid trees", "Tree ferns"],
@@ -60,7 +60,7 @@
       },
       // ---- before Slide 4 ----
       {
-        id: "f", type: "q", scored: true, pen: 0, dur: 15, pts: 10,
+        id: "f", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
         kicker: "Predict · from our class notes", title: "Remember Lecture 1?",
         rule: "Two questions from class that explain the next slide. +10 if right. Wrong costs nothing.",
         qs: [
@@ -74,7 +74,7 @@
       },
       // ---- after Slide 4 ----
       {
-        id: "o", type: "order", scored: true, dur: 40, pts: 10,
+        id: "o", type: "order", scored: true, dur: 40, pts: 10, chain: true,
         kicker: "Check · Slide 4", title: "Put the collapse in order",
         rule: "Tap the four steps in the order they happened. +10 for each step in the right place, −5 if wrong.",
         items: [
@@ -87,7 +87,7 @@
       },
       // ---- before Slide 5 ----
       {
-        id: "a", type: "q", scored: true, pen: 0, dur: 15, pts: 10,
+        id: "a", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
         kicker: "Predict · from Lecture 2", title: "Pick the archive",
         rule: "One guess. +10 if right. Wrong costs nothing.",
         qs: [
@@ -106,7 +106,7 @@
         key: [2, 4, 0, 3, 1],
       },
       {
-        id: "g", type: "q", scored: true, dur: 20, pts: 20, grid: true, board: true,
+        id: "g", type: "q", scored: true, dur: 20, pts: 20, grid: true, board: true, chain: true,
         kicker: "Check · Slide 6", title: "Pick the graph",
         rule: "Which graph matches the record? +20 if right, −5 if wrong.",
         qs: [
@@ -122,7 +122,7 @@
       },
       // ---- before Slide 7 ----
       {
-        id: "z", type: "q", scored: true, pen: 0, dur: 15, pts: 10,
+        id: "z", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
         kicker: "Predict · before the models", title: "How cold can it get?",
         rule: "One guess. +10 if right. Wrong costs nothing.",
         qs: [
@@ -148,14 +148,12 @@
         ],
       },
       {
-        id: "t", type: "q", scored: true, dur: 12, pts: 10,
+        id: "t", type: "q", scored: true, dur: 12, pts: 10, chain: true,
         kicker: "Check · Slides 7 and 8", title: "Myth or fact?",
         rule: "Quick fire. +10 if right, −5 if wrong, 0 for No idea.",
         qs: [
           { id: "t1", q: "Burying plant carbon as coal pulled CO₂ out of the air.", o: ["Fact", "Myth"], a: 0,
             why: "Carbon locked in coal left the atmosphere for millions of years." },
-          { id: "t2", q: "Proxies prove the Earth fully froze over in the Late Carboniferous.", o: ["Fact", "Myth"], a: 1,
-            why: "It came close. Proxy CO₂ stayed above the freezing threshold." },
           { id: "t3", q: "A model that matches the past is guaranteed to predict the future.", o: ["Fact", "Myth"], a: 1,
             why: "It earns more trust, not a guarantee." },
         ],
