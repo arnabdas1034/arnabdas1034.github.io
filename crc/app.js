@@ -57,6 +57,9 @@
     if (last) STEPS.push({ k: "final", a: ai });
     else { if (a.board) STEPS.push({ k: "board", a: ai }); if (!a.chain) STEPS.push({ k: "break", a: ai }); }
   });
+  // round number of each act: a new round starts after every act that ends with a break
+  { let r = 0; ACTS.forEach((a, ai) => { if (ai === 0 || !ACTS[ai - 1].chain) r++; a.round = r; }); }
+  const roundName = (a) => (a.round === ACTS[ACTS.length - 1].round ? "Final round" : "Round " + a.round);
   const qidsOf = (st) => {
     const a = ACTS[st.a]; if (!a) return [];
     if (a.type === "q") return [a.qs[st.q].id];
@@ -473,12 +476,29 @@
     if (st.k === "break") return "Switch to your slides. Press Next when you are ready for the next game.";
     return "";
   }
+  const endp = (x) => (/[?.!]$/.test(x) ? x : x + ".");
+  function hostCue() {
+    const n = S.state.step || 0, st = STEPS[n], a = ACTS[st.a], nx = STEPS[n + 1];
+    if (st.k === "lobby") return { c: "game", t: "Eyes on the screen", s: "Projector on the game tab. Let everyone join, then press Next for Round 1." };
+    if (st.k === "break") {
+      const na = ACTS[st.a + 1];
+      return { c: "slides", t: "Back to the slides", s: `Stop the game. Projector on the slides, go to ${endp(a.back)}` + (na ? ` Press Next for ${roundName(na)} only when you reach the Phones out slide (${na.slide}).` : "") };
+    }
+    if (st.k === "final") return { c: "game", t: "Announce the winner", s: `Final results are on the projector. After the applause, switch to the slides: ${endp(a.back)}` };
+    const r = `${roundName(a)} · ${a.title}`;
+    let s = "Stay on the game tab.";
+    if (nx && nx.k === "break") s = "Last part of this round. After this, back to the slides.";
+    else if (nx && nx.k === "final") s = "Next shows the final results.";
+    else if (nx && nx.a !== st.a && nx.k === "intro") s = `Next game follows straight away: ${ACTS[nx.a].title} Stay on the game tab.`.replace(/([^?.!]) Stay/, "$1. Stay");
+    return { c: "game", t: "Eyes on the screen", r, s };
+  }
   function hostView() {
     const s = S.state, n = s.step || 0, joined = Object.values(S.teams).reduce((x, y) => x + y, 0);
     const tabs = [["run", "Run"], ["pts", "Board"], ["ppl", "People"], ["set", "Setup"]];
     let body = "";
     if (hostTab === "run") {
-      body = `<div class="hnow"><small>Step ${n + 1} of ${STEPS.length} · ${joined} joined${rtOk || MOCK ? "" : " · slow link"}</small>
+      const cue = hostCue();
+      body = `<div class="hcue ${cue.c}"><b>${esc(cue.t)}</b>${cue.r ? `<em>${esc(cue.r)}</em>` : ""}<span>${esc(cue.s)}</span></div><div class="hnow"><small>Step ${n + 1} of ${STEPS.length} · ${joined} joined${rtOk || MOCK ? "" : " · slow link"}</small>
         <h2>${esc(describe(n))}</h2><p id="hlive" class="hlive"></p><p class="notes">${esc(hostNotes())}</p></div>
         <button class="primary big" data-act="next" ${n >= STEPS.length - 1 ? "disabled" : ""}>Next<small>${esc(describe(n + 1))}</small></button>
         <div class="row2"><button class="ghost" data-act="prev" ${n <= 0 ? "disabled" : ""}>Back</button>

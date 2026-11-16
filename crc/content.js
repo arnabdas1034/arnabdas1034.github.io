@@ -36,7 +36,7 @@
     acts: [
       // ---- before Slide 2 ----
       {
-        id: "w", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
+        id: "w", slide: "Page 3", back: "Page 4 · Madhav · What was it?", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
         kicker: "Predict · before we teach", title: "Gut feeling",
         rule: "Two guesses before the story starts. +10 if right. Wrong costs nothing.",
         qs: [
@@ -50,7 +50,7 @@
       },
       // ---- after Slide 3 ----
       {
-        id: "s", type: "match", scored: true, dur: 30, pts: 10, chips: true, chain: true,
+        id: "s", slide: "Page 6", type: "match", scored: true, dur: 30, pts: 10, chips: true, chain: true,
         kicker: "Check · Slides 2 and 3", title: "Winners or losers?",
         rule: "When the forest broke apart, who gained and who lost? +10 each, −5 if wrong.",
         probs: ["Amphibians", "Amniotes (early reptile-like animals)", "Giant lycopsid trees", "Tree ferns"],
@@ -60,7 +60,7 @@
       },
       // ---- before Slide 4 ----
       {
-        id: "f", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
+        id: "f", back: "Page 7 · Prabhav · Causes and driving factors", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
         kicker: "Predict · from our class notes", title: "Remember Lecture 1?",
         rule: "Two questions from class that explain the next slide. +10 if right. Wrong costs nothing.",
         qs: [
@@ -74,7 +74,7 @@
       },
       // ---- after Slide 4 ----
       {
-        id: "o", type: "order", scored: true, dur: 40, pts: 10, chain: true,
+        id: "o", slide: "Page 8", type: "order", scored: true, dur: 40, pts: 10, chain: true,
         kicker: "Check · Slide 4", title: "Put the collapse in order",
         rule: "Tap the four steps in the order they happened. +10 for each step in the right place, −5 if wrong.",
         items: [
@@ -87,7 +87,7 @@
       },
       // ---- before Slide 5 ----
       {
-        id: "a", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
+        id: "a", back: "Page 9 · Aditya · How do we know?", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
         kicker: "Predict · from Lecture 2", title: "Pick the archive",
         rule: "One guess. +10 if right. Wrong costs nothing.",
         qs: [
@@ -98,7 +98,7 @@
       },
       // ---- after Slide 6 ----
       {
-        id: "m", type: "match", scored: true, dur: 45, pts: 10, chain: true,
+        id: "m", slide: "Page 11", type: "match", scored: true, dur: 45, pts: 10, chain: true,
         kicker: "Check · Slides 5 and 6", title: "Match the proxy to its clue",
         rule: "Five proxies, five clues. +10 each, −5 if wrong, 0 for No idea.",
         probs: ["Leaf stomata (tiny pores)", "Oxygen isotopes in marine shells", "Cyclothems (repeating rock layers)", "Volcanic ash, uranium-lead dating", "Fossil spores"],
@@ -122,7 +122,7 @@
       },
       // ---- before Slide 7 ----
       {
-        id: "z", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
+        id: "z", back: "Page 12 · Divyansh · Climate models", type: "q", scored: true, pen: 0, dur: 12, pts: 10,
         kicker: "Predict · before the models", title: "How cold can it get?",
         rule: "One guess. +10 if right. Wrong costs nothing.",
         qs: [
@@ -133,7 +133,7 @@
       },
       // ---- after Slide 8 ----
       {
-        id: "v", type: "q", scored: true, dur: 20, pts: 20, grid: true, chain: true,
+        id: "v", slide: "Page 14", type: "q", scored: true, dur: 20, pts: 20, grid: true, chain: true,
         kicker: "Check · Slide 8", title: "Does the model pass?",
         rule: "Dots are proxy data. The gold line is the model. +20 if right, −5 if wrong.",
         qs: [
@@ -160,7 +160,7 @@
       },
       // ---- before Slide 9 ----
       {
-        id: "h", type: "q", scored: false, dur: 12,
+        id: "h", back: "Page 15 · Abhas · Lessons and applications", type: "q", scored: false, dur: 12,
         kicker: "Hot take · no points", title: "Your view",
         rule: "No right answer. Just tell us what you think.",
         qs: [
@@ -170,7 +170,7 @@
       },
       // ---- after Slide 9 ----
       {
-        id: "k", type: "q", scored: true, dur: 15, pts: 20, board: true,
+        id: "k", slide: "Page 16", back: "Page 17 References for a few seconds, then Page 18 Thank you and questions", type: "q", scored: true, dur: 15, pts: 20, board: true,
         kicker: "The final round", title: "Last chance",
         rule: "Two questions on Slide 9. +20 if right, −5 if wrong.",
         qs: [
