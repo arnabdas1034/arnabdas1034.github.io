@@ -30,8 +30,8 @@
     room: "crc",
     // A wrong answer costs this many points in "Check" rounds. "No idea" and no answer cost nothing.
     penalty: 5,
-    // Carboniferous life
-    teams: ["Lycopsids", "Tree Ferns", "Amniotes", "Meganeura", "Cordaites", "Coal Swamp"],
+    // One team per ASL 375 presentation group (our own group, Carboniferous, is not a team)
+    teams: ["Snowball Earth", "K-Pg Extinction", "PETM", "Last Glacial Max", "Glacier Retreat", "Heinrich Events", "Holocene", "4.2 ka Drying", "Little Ice Age", "8.2 ka Event", "Younger Dryas", "Great Oxidation", "Permian-Triassic", "Eocene-Oligocene", "Monsoon Data"],
 
     acts: [
       // ---- before Slide 2 ----

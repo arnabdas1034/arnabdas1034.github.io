@@ -70,8 +70,8 @@ textarea{resize:vertical;min-height:110px}
 .chk{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:var(--soft)}
 .chk input{width:20px;height:20px;accent-color:var(--gold);flex:none;margin-top:1px}
 .teams{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.team{display:grid;gap:2px;padding:12px 10px;border:1px solid rgba(201,162,75,.6);background:transparent;text-align:center;min-height:64px}
-.team b{font-family:var(--serif);font-size:21px;font-weight:600}
+.team{display:grid;gap:2px;padding:9px 6px;border:1px solid rgba(201,162,75,.6);background:transparent;text-align:center;min-height:64px}
+.team b{font-family:var(--serif);font-size:16px;font-weight:600;line-height:1.15}
 .team small{font-size:12px;color:var(--soft)}
 .team.sel{background:var(--gold);color:var(--ink)}.team.sel small{color:var(--ox)}
 .res .mark{width:84px;height:84px;margin:4px auto;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center;font-size:40px;line-height:1}
@@ -136,6 +136,7 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 .stage .lead{font-size:2.2vw;color:var(--soft);font-family:var(--serif);font-style:italic}
 .huge{font-family:var(--serif);font-weight:600;font-size:7.6vw;line-height:1;margin:1.4vh 0}
 .huge.gold{color:var(--goldl)}
+.lobby .huge{font-size:5.6vw}
 .mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.6vh}
 .mid.tight{padding:0 4vw}
 .orn{width:22vw;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent);position:relative;margin:2vh 0}
@@ -171,9 +172,9 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 .lobby{flex:1;display:grid;grid-template-columns:auto 1fr;gap:5vw;align-items:center}
 .qr{width:31vw;max-width:62vh;background:#fff;padding:1vw;border:.3vw solid var(--gold)}.qr svg{display:block;width:100%;height:auto}
 .url{text-align:center;margin-top:1.6vh;font-size:1.9vw;font-weight:700;color:var(--goldl);letter-spacing:.02em}
-.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2vw;margin-top:3vh}
-.tcell{border:1px solid rgba(201,162,75,.6);padding:1.2vh 1.2vw;display:flex;justify-content:space-between;align-items:baseline;gap:1vw}
-.tcell b{font-family:var(--serif);font-size:2vw;font-weight:600}.tcell span{font-size:2vw;font-weight:700;color:var(--goldl);font-variant-numeric:tabular-nums}
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8vw;margin-top:2.4vh}
+.tcell{border:1px solid rgba(201,162,75,.6);padding:.8vh .9vw;display:flex;justify-content:space-between;align-items:baseline;gap:1vw}
+.tcell b{font-family:var(--serif);font-size:1.3vw;font-weight:600}.tcell span{font-size:1.4vw;font-weight:700;color:var(--goldl);font-variant-numeric:tabular-nums}
 .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 4vw}
 .mgrid.rev{grid-template-columns:1fr}
 .mline{display:flex;gap:1.4vw;align-items:baseline;border-top:1px solid rgba(201,162,75,.4);padding:1.75vh 0;font-size:2.15vw;font-family:var(--serif)}
@@ -187,12 +188,12 @@ summary{color:var(--goldl);font-weight:600;padding:6px 0}
 .bwrap{flex:1;display:grid;grid-template-columns:1.9fr 1fr;gap:5vw;align-items:center;padding-bottom:4vh}
 .bwrap.fin{align-items:start;padding-top:1vh}
 .bwrap.fin .huge{font-size:6.4vw;margin:0 0 2.4vh}
-.board.big{gap:2.1vh}
+.board.big{gap:1.5vh}
 .board.big .brow{grid-template-columns:2.4vw minmax(0,1fr) minmax(0,1.4fr) 6vw;gap:1.2vw}
-.board.big .rank{font-size:2.4vw}.board.big .bname{font-size:2.5vw}.board.big .bname small{font-size:1vw}
-.board.big .bbar{height:1.6vh}.board.big .bval{font-size:2.3vw;text-align:right}
+.board.big .rank{font-size:2vw}.board.big .bname{font-size:2vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.board.big .bname small{font-size:1vw}
+.board.big .bbar{height:1.4vh}.board.big .bval{font-size:2vw;text-align:right}
 .side{border-left:1px solid rgba(201,162,75,.5);padding-left:3vw}
-.side .top{gap:1.6vh;margin-top:2vh}.side .top b{font-size:2.2vw}.side .top span{font-size:1.1vw}.side .top em{font-size:2vw}.side .top li{padding-top:1.6vh}
+.side .top{gap:1.2vh;margin-top:2vh}.side .top b{font-size:1.8vw}.side .top span{font-size:1vw}.side .top em{font-size:1.8vw}.side .top li{padding-top:1.2vh}
 .quiet .foot{opacity:.5}
 
 /* ---------- CRC additions ---------- */
@@ -235,10 +236,10 @@ body.m-play::before,body.m-host::before{opacity:.04}
 </head>
 <body>
 <div id="app"></div>
-<script src="content.js?v=1"></script>
+<script src="content.js?v=2"></script>
 <script src="lib/supabase.js"></script>
 <script src="lib/qrcode.js"></script>
-<script src="mock.js?v=1"></script>
-<script src="app.js?v=1"></script>
+<script src="mock.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

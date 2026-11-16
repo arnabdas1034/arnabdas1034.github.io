@@ -115,7 +115,7 @@
   let myBonus = 0;
   let pin = store.get("pin", null);
   let authed = false;
-  const nT = () => Math.min(K.teams.length, Math.max(2, S.state.nT || 6));
+  const nT = () => K.teams.length;
   const step = () => STEPS[Math.min(STEPS.length - 1, S.state.step || 0)];
   const remain = () => (S.state.t0 && S.state.dur ? S.state.dur - (Date.now() + S.off - S.state.t0) / 1000 : null);
   const isOpen = () => !!S.state.gate;
@@ -205,10 +205,10 @@
     });
     return s + myBonus;
   }
-  function boardHtml(b, big) {
+  function boardHtml(b, big, lim) {
     if (!b || !b.teams || !b.teams.length) return `<p class="muted">No scores yet.</p>`;
     const max = Math.max(1, ...b.teams.map((t) => t.total));
-    return `<div class="board ${big ? "big" : ""}">` + b.teams.map((t, i) => `
+    return `<div class="board ${big ? "big" : ""}">` + b.teams.slice(0, lim || (big ? 8 : 99)).map((t, i) => `
       <div class="brow ${me && me.team === t.team ? "mine" : ""}">
         <span class="rank">${i + 1}</span>
         <span class="bname">${esc(K.teams[t.team] || "Team " + (t.team + 1))}<small>${t.n} ${t.n === 1 ? "player" : "players"}${t.bonus ? " · bonus " + t.bonus : ""}</small></span>
@@ -445,7 +445,7 @@
     if (st.k === "final") {
       const b = s.board || { teams: [], top: [] }, w = b.teams[0];
       return frame(`<p class="kick">Final results</p>
-        <div class="bwrap fin"><div><p class="lead">Winning team</p><h1 class="huge gold">${w ? esc(K.teams[w.team]) : "–"}</h1>${boardHtml(b, true)}</div>
+        <div class="bwrap fin"><div><p class="lead">Winning team</p><h1 class="huge gold">${w ? esc(K.teams[w.team]) : "–"}</h1>${boardHtml(b, true, 5)}</div>
         <div class="side"><p class="kick">Top scorers</p>${topHtml(b, 5)}</div></div>`);
     }
     return frame("");
@@ -511,7 +511,6 @@
     if (hostTab === "set") {
       const base = location.origin + location.pathname, r = ROOM !== DEF_ROOM ? "&room=" + ROOM : "", m = MOCK ? "&mock" : "";
       body = `<h2>Setup</h2><p class="muted">Room: <b>${esc(ROOM)}</b></p>
-        <label class="fl">Number of teams (set this in the lobby)<select id="nt" ${n === 0 ? "" : "disabled"}>${[2, 3, 4, 5, 6, 7, 8].map((x) => `<option ${nT() === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
         <p class="fl">Projector link</p><p class="link">${esc(base + "?screen" + r + m)}</p>
         <button class="ghost" data-act="copyscreen">Copy projector link</button>
         <details><summary>Start over (rehearsal only)</summary><p class="muted">Removes every player and score in this room and sends everyone back to the join page.</p>
