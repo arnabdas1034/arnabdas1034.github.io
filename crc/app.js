@@ -485,7 +485,8 @@
       return { c: "slides", t: "Back to the slides", s: `Stop the game. Projector on the slides, go to ${endp(a.back)}` + (na ? ` Press Next for ${roundName(na)} only when you reach the Phones out slide (${na.slide}).` : "") };
     }
     if (st.k === "final") return { c: "game", t: "Announce the winner", s: `Final results are on the projector. After the applause, switch to the slides: ${endp(a.back)}` };
-    const r = `${roundName(a)} · ${a.title}`;
+    const kind = !a.scored ? "Opinion, no points" : penOf(a) === 0 ? "Predict, before the slide" : "Check, after the slide";
+    const r = `${roundName(a)} · ${kind} · ${a.title}`;
     let s = "Stay on the game tab.";
     if (nx && nx.k === "break") s = "Last part of this round. After this, back to the slides.";
     else if (nx && nx.k === "final") s = "Next shows the final results.";
