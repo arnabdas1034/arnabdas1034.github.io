@@ -493,17 +493,26 @@
     else if (nx && nx.a !== st.a && nx.k === "intro") s = `Next game follows straight away: ${ACTS[nx.a].title} Stay on the game tab.`.replace(/([^?.!]) Stay/, "$1. Stay");
     return { c: "game", t: "Eyes on the screen", r, s };
   }
+  const isPredict = (a) => a && (!a.scored || penOf(a) === 0);
+  function predictList(cur) {
+    const items = ACTS.map((a, ai) => ({ a, ai })).filter((x) => isPredict(x.a));
+    return `<div class="plist"><p class="kick">Predict games · guess before the slide</p><ol>` + items.map(({ a, ai }) =>
+      `<li class="${cur && cur.a === ai ? "on" : ""}"><b>${esc(roundName(a))} · ${esc(a.title)}${a.scored ? "" : " (no points)"}</b><span>Then explained by ${esc((a.back || "").replace(/^Page \d+ · /, "").replace(/ · /, ", "))}</span></li>`).join("") +
+      `</ol><p class="muted">Say: "Just guess, nothing to lose. The next slide explains it."</p></div>`;
+  }
   function hostView() {
     const s = S.state, n = s.step || 0, joined = Object.values(S.teams).reduce((x, y) => x + y, 0);
     const tabs = [["run", "Run"], ["pts", "Board"], ["ppl", "People"], ["set", "Setup"]];
     let body = "";
     if (hostTab === "run") {
+      const st0 = STEPS[n];
       const cue = hostCue();
       body = `<div class="hcue ${cue.c}"><b>${esc(cue.t)}</b>${cue.r ? `<em>${esc(cue.r)}</em>` : ""}<span>${esc(cue.s)}</span></div><div class="hnow"><small>Step ${n + 1} of ${STEPS.length} · ${joined} joined${rtOk || MOCK ? "" : " · slow link"}</small>
         <h2>${esc(describe(n))}</h2><p id="hlive" class="hlive"></p><p class="notes">${esc(hostNotes())}</p></div>
         <button class="primary big" data-act="next" ${n >= STEPS.length - 1 ? "disabled" : ""}>Next<small>${esc(describe(n + 1))}</small></button>
         <div class="row2"><button class="ghost" data-act="prev" ${n <= 0 ? "disabled" : ""}>Back</button>
         <button class="ghost" data-act="lock" ${isOpen() ? "" : "disabled"}>Stop the clock</button></div>
+        ${predictList(st0)}
         <details><summary>Jump to a game</summary><div class="jump">${STEPS.map((st, i) => (st.k === "intro" || st.k === "lobby" || st.k === "final" ? `<button class="ghost" data-act="jump" data-n="${i}">${esc(st.k === "lobby" ? "Lobby" : st.k === "final" ? "Final results" : ACTS[st.a].title)}</button>` : "")).join("")}</div></details>`;
     }
     if (hostTab === "pts") {
